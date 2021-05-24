@@ -1,0 +1,127 @@
+#Technical
+ground =
+{
+
+}
+
+vest =
+{
+	image = vest_slot
+}
+
+belt =
+{
+	image = belt_slot
+}
+
+backpack =
+{
+	image = backpack_slot
+}
+
+backweapon =
+{
+	image = large_gun_slot
+}
+
+weapon =
+{
+
+}
+
+helmet =
+{
+	image = helmet_slot
+}
+
+mask = 
+{
+	image = face_slot
+}
+
+armor =
+{
+	image = armor_slot
+}
+
+eyes = 
+{
+	image = eye_slot
+}
+
+thighrig =
+{
+
+}
+
+#Ingame
+
+AK_mag = 
+{
+	image = akmag_slot
+}
+
+STANAG_mag = 
+{
+	image = stanag_slot
+}
+
+small_grenade =
+{
+	image = grenade_slot
+}
+
+large_gun =
+{
+	image = large_gun_slot
+}
+
+small_pistol =
+{
+	image = compact_pistol_slot
+}
+
+medium_pistol = 
+{
+	image = medium_pistol_slot
+}
+
+pan_magazine =
+{
+	image = pan_magazine_slot
+}
+
+smg_magazine =
+{
+	image = smg_mag_slot
+}
+
+pistol_magazine =
+{
+	image = pistol_mag_slot
+}
+
+large_pistol_magazine =
+{
+
+}
+
+rifle_magazine =
+{
+	image = rifle_mag_slot
+}
+
+general_small = 
+{
+	image = small_general_slot
+}
+
+general_medium = 
+{
+	image = medium_general_slot
+}
+
+general_large = 
+{
+	image = large_general_slot
+}

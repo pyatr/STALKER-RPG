@@ -1,0 +1,131 @@
+loners =
+{
+	name = Loners
+	hostiletowards = 
+	{
+		bandits
+		army
+		monolith
+		mercenaries
+	}	
+}
+
+bandits =
+{
+	name = Bandits
+	hostiletowards =
+	{
+		loners
+		army
+		ecologists
+		duty
+		monolith
+		clear_sky
+	}
+}
+
+playerfaction =
+{
+	name = Player
+	basedon = loners
+}
+
+army =
+{
+	name = UAF
+	friendlytowards =
+	{
+		ecologists
+		duty
+	}
+	hostiletowards =
+	{
+		loners
+		bandits
+		freedom
+		mercenaries
+		monolith
+		clear_sky
+	}
+}
+
+ecologists =
+{
+	name = Ecologists
+	hostiletowards =
+	{
+		bandits
+		monolith
+	}
+}
+
+duty =
+{
+	name = Duty
+	friendlytowards =
+	{
+		ecologists
+		duty
+	}
+	hostiletowards =
+	{
+		freedom
+		mercenaries
+		freedom
+		bandits
+		monolith
+		freedom
+	}
+}
+
+freedom =
+{
+	name = Freedom
+	hostiletowards =
+	{
+		duty
+		monolith
+		army
+	}
+}
+
+monolith =
+{
+	name = Monolith
+	hostiletowards =
+	{
+		duty
+		army
+		freedom
+		bandits
+		loners
+		army
+		clear_sky
+		mercenaries
+	}
+}
+
+clear_sky =
+{
+	name = Clear_Sky
+	hostiletowards =
+	{
+		bandits
+		army
+		monolith
+		mercenaries
+	}
+}
+
+mercenaries =
+{
+	name = Mercenaries
+	hostiletowards =
+	{
+		duty
+		army
+		monolith
+		loners
+		clear_sky
+	}
+}

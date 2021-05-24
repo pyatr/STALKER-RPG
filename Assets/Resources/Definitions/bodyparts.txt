@@ -1,0 +1,37 @@
+human = 
+{
+	head = 
+	{
+		hit_difficulty = 20
+		damage_chances = {70 20 10}
+		damage_modifiers = {300 170 120}
+	}
+	
+	arms = 	
+	{
+		hit_difficulty = 30
+		damage_chances = {80 10 10}
+		damage_modifiers = {70 80 90}
+	}
+	
+	legs = 
+	{
+		hit_difficulty = 40
+		damage_chances = {95 5}
+		damage_modifiers = {90 200}		
+	}
+	
+	chest = 
+	{
+		hit_difficulty = 80
+		damage_chances = {65 25 10}
+		damage_modifiers = {100 200 500}				
+	}
+	
+	torso = 
+	{
+		hit_difficulty = 80
+		damage_chances = {70 20 10}
+		damage_modifiers = {100 150 180}				
+	}
+}

@@ -1,0 +1,212 @@
+Weight = 
+{
+	min = 0
+	max = 100000
+	default = 0.3
+}
+
+Item_condition = 
+{
+	min = 0
+	max = 100
+	default = 100
+	grades = 
+	{
+		precise = false
+		levels = {0 15 30 50 80 90 100}
+		names = {Broken Battered Bad Fair Good Excellent Perfect}
+	}
+}
+
+#Handle_difficulty = 
+#{
+#	min = 1
+#	max = 40
+#	default = 5
+#}
+#
+#Reliability =
+#{
+#	min = 1
+#	max = 20
+#	default = 10
+#}
+#
+#Magazine = 
+#{
+#	min = 0
+#	max = 30
+#	default = 0
+#	grades = 
+#	{
+#		precise = false
+#		levels = {0 30 60 80 100}
+#		names = {Empty Low Medium High Full}
+#	}
+#}
+
+Accuracy = 
+{
+	min = 1
+	max = 25
+	default = 5
+	grades = 
+	{
+		precise = false
+		levels = {0 5 10 15 20}
+		names = {Very_low Low Medium High Very_high}
+	}
+}
+
+#Character attributes
+Level = 
+{
+	min = 1
+	max = 20
+	default = 1
+	grades =
+	{
+		precise = true
+		levels = {1 5 10 15}
+		names = {Newbie Experienced Veteran Master}	
+	}
+}
+
+Health = 
+{
+	min = 0
+	max = 100
+	default = 100
+	grades = 
+	{
+		precise = false
+		levels = {0 30 60 80}
+		names = {Dead Badly_wounded Wounded Healthy}
+		colors = {80_10_10 125_30_30 40_160_150 100_240_120}
+	}
+}
+
+Stamina =
+{
+	min = 0
+	max = 100
+	default = 100
+	grades = 
+	{
+		precise = false
+		levels = {0 30 60 80}
+		names = {Passed_out Exhausted Tired Fine}
+	}
+}
+
+Encumbrance = 
+{
+	min = 0
+	max = 100
+	default = 0
+	grades = 
+	{
+		precise = false
+		levels = {20 40 60 80 95}
+		names = {None Light Medium Heavy Burdened}
+	}
+}
+
+Strength =
+{
+	min = 1
+	max = 35
+	default = 16
+	grades = 
+	{
+		precise = false
+		levels = {1 5 10 15 20 25 30}
+		names = {Weak Below_average About_average Fairly_strong Athletic Very_strong Powerful}
+	}	
+}
+
+Dexterity =
+{
+	min = 1
+	max = 35
+	default = 16
+	grades = 
+	{
+		precise = false
+		levels = {1 5 10 15 20 25 30}
+		names = {Clumsy Awkward Average Spry Nimble Dexterous Acrobatic}
+	}	
+}
+
+Endurance =
+{
+	min = 1
+	max = 35
+	default = 16
+	grades = 
+	{
+		precise = false
+		levels = {1 5 10 15 20 25 30}
+		names = {Unsteady Erratic About_average Above_average Very_healthy Hardy Titanic}
+	}	
+}
+
+Perception =
+{
+	min = 1
+	max = 35
+	default = 16
+	grades = 
+	{
+		precise = false
+		levels = {1 5 10 15 20 25 30}
+		names = {Almost_blind Shortsighted About_average Above_average Focused Sharp Eagle_eyed}
+	}	
+}
+
+#Skills
+Social =
+{
+	min = 1
+	max = 35
+	default = 16
+	#grades = 
+	#{
+	#	precise = false
+	#	levels = {1 5 10 15 20 25 30}
+	#	names = {Unpopular Unassuming Unremarkable Interesting Charming Arresting Authoritative}
+	#}	
+}
+
+Marksmanship =
+{
+	min = 1
+	max = 35
+	default = 16
+}
+
+Medical = 
+{
+	min = 1
+	max = 35
+	default = 16
+}
+
+Mechanical = 
+{
+	min = 1
+	max = 35
+	default = 16
+}
+
+Level =
+{
+	min = 1
+	max = 24
+	default = 1
+	{
+		precise = false
+		levels = {6 12 18}
+		names = {Newbie Experienced Veteran Master}
+	}
+}

@@ -1,0 +1,49 @@
+medkit = 
+{
+	weight = 0.3
+	price = 800
+	sprite = medkit
+	AP_to_move = 4
+	name = Medkit
+	item_slots = 
+	{
+		general_small = 1
+		general_medium = 2
+		general_large = 5
+	}
+	medkit
+	maxcondition = 90
+}
+
+repairkit =
+{
+	weight = 3.4
+	price = 2964
+	name = Repair_kit
+	sprite = repairkit
+	AP_to_move = 6
+	item_slots =
+	{		
+		general_large = 2
+	}
+	repairkit
+	maxcondition = 350
+}
+
+bandage = 
+{
+	weight = 0.05
+	price = 100
+	item_slots = 
+	{
+		AK_mag = 2
+		STANAG_mag = 1
+		general_small = 3
+		general_medium = 8
+		general_large = 20
+	}
+	usable =
+	{
+		stop_bleeding
+	}
+}

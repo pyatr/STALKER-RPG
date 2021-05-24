@@ -1,0 +1,661 @@
+PM = 
+{
+	name = PM
+	sprite = PM
+	accuracy = 3
+	reliability = 14
+	damage_bonus = -1
+	price = 8649
+	weight = 0.73
+	magazine = PM
+	standart_magazine = PM8Rounds
+	max_condition = 300
+	handle_difficulty = 6
+	shoot_sound = pm_shot
+	item_slots =
+	{
+		small_pistol = 1
+		general_small = 1
+		general_medium = 3
+		general_large = 6
+	}
+	#Type / action points
+	fire_modes =
+	{
+		semi = 4
+	}	
+	variations = 
+	{
+		PMm = 
+		{
+			name = PMm
+			sprite = PMM
+			magazine = PMm
+			max_condition = 350
+			standart_magazine = PMm12Rounds
+			shoot_sound = pmm_shot
+			price = 12469
+		}
+	}
+}
+
+AK = 
+{
+	name = AK
+	sprite = AK
+	accuracy = 6
+	reliability = 16
+	price = 26156
+	weight = 4.3
+	handle_difficulty = 9
+	magazine = AK
+	distance_modifier = -2
+	standart_magazine = AKmag
+	shoot_sound = AK_shot
+	max_condition = 800
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 8
+			shots = 6
+			recoil = 7
+		}
+	}
+	variations = 
+	{
+		AKS = 
+		{
+			name = AKS
+			sprite = AKS
+			price = 30112
+			weight = 4.1
+		}
+		AKMS = 
+		{
+			name = AKMS
+			sprite = AKMS
+			price = 30569
+			weight = 3.0
+		}
+		AKM = 
+		{
+			name = AKM
+			sprite = AKM
+			price = 29613
+			accuracy = 7
+			distance_modifier = -1
+			handle_difficulty = 8
+			reliability = 16
+			weight = 3.1
+			fire_modes =
+			{
+				semi = 
+				{		
+					AP = 5				
+				}
+				auto = 
+				{
+					AP = 8
+					shots = 6
+					recoil = 6
+				}
+			}
+		}
+	}
+}
+
+AK74 = 
+{
+	name = AK74
+	sprite = AK74
+	accuracy = 7
+	reliability = 14
+	price = 31236
+	weight = 3.1
+	handle_difficulty = 7
+	recoil = 5
+	magazine = AK74
+	shoot_sound = AK74_shot
+	standart_magazine = AK74mag
+	max_condition = 700
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 7
+			shots = 6
+			recoil = 5
+		}
+	}
+	variations = 
+	{
+		AKS74 = 
+		{
+			name = AKS74
+			sprite = AKS74
+			price = 32168
+			weight = 3.0
+		}
+		AK74u = 
+		{		
+			name = AK74u
+			sprite = AKSU74
+			accuracy = 5
+			damage_bonus = -1
+			price = 25563
+			reliability = 15
+			max_condition = 680
+			weight = 2.7
+			distance_modifier = -7
+			fire_modes =
+			{
+				semi = 
+				{		
+					AP = 4				
+				}
+				auto = 
+				{
+					AP = 6
+					shots = 6
+					recoil = 8
+				}
+			}
+		}
+	}
+}
+
+RPK = 
+{
+	name = RPK
+	sprite = RPK
+	accuracy = 8
+	reliability = 14
+	price = 39718
+	weight = 4.2
+	handle_difficulty = 9
+	magazine = AK
+	shoot_sound = RPK_shot
+	standart_magazine = RPKmag
+	max_condition = 780
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+		auto = 
+		{
+			AP = 8
+			shots = 6
+			recoil = 4
+		}
+	}
+}
+
+RPK74 = 
+{
+	name = RPK74
+	sprite = RPK74
+	accuracy = 8
+	reliability = 14
+	price = 40756
+	weight = 3.8
+	shoot_sound = RPK74_shot
+	handle_difficulty = 9
+	max_condition = 760
+	magazine = AK74
+	standart_magazine = RPK74mag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+		auto = 
+		{
+			AP = 8
+			shots = 6
+			recoil = 4
+		}
+	}
+}
+
+PPSh = 
+{
+	name = PPSh
+	sprite = PPSh
+	accuracy = 6
+	reliability = 12
+	price = 21794
+	weight = 4.1
+	handle_difficulty = 7
+	magazine = PPSh
+	max_condition = 550
+	standart_magazine = PPShmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 7
+			shots = 7
+			recoil = 6
+		}
+	}
+}
+
+PPS43 = 
+{
+	name = PPS43
+	sprite = PPS43
+	accuracy = 6
+	reliability = 12
+	price = 21794
+	weight = 3.1
+	handle_difficulty = 7
+	magazine = PPS
+	max_condition = 450
+	standart_magazine = PPSmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 7
+			shots = 7
+			recoil = 5
+		}
+	}
+}
+
+DP = 
+{
+	name = DP
+	sprite = DP28
+	accuracy = 6
+	reliability = 11
+	price = 35866
+	weight = 9.12
+	shoot_sound = dp_shot
+	handle_difficulty = 12
+	max_condition = 750
+	magazine = DP
+	standart_magazine = DPmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 7				
+		}
+		auto = 
+		{
+			AP = 9
+			shots = 4
+			recoil = 4
+		}
+	}
+}
+
+SVT = 
+{
+	name = SVT40
+	sprite = SVT40
+	accuracy = 10
+	reliability = 12
+	shoot_sound = svt_shot
+	price = 47866
+	weight = 4.1
+	handle_difficulty = 9
+	max_condition = 720
+	magazine = SVT
+	standart_magazine = SVTmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 8				
+		}
+	}
+}
+
+TOZ66 = 
+{	
+	name = TOZ66
+	sprite = TOZ66
+	accuracy = 6
+	reliability = 18
+	price = 21674
+	shoot_sound = shotgun_shot
+	weight = 3.8
+	handle_difficulty = 8
+	max_condition = 500
+	magazine = BreakShotgunTwoRounds
+	standart_magazine = TwoRoundShotgunMag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 8				
+		}
+		burst = 
+		{		
+			AP = 9
+			shots = 2
+			recoil = 2
+		}
+	}
+	variations =
+	{
+		TOZ66sawnoff = 
+		{	
+			name = TOZ66_sawn-off
+			sprite = TOZ66sawnoff
+			accuracy = 2
+			price = 15464
+			weight = 2.5
+			shoot_sound = sawnoff_shot
+			handle_difficulty = 12
+			fire_modes =
+			{
+				semi = 
+				{		
+					AP = 6
+				}
+				burst = 
+				{		
+					AP = 7
+					shots = 2
+					recoil = 4
+				}
+			}
+		}	
+	}
+}
+
+Mosin = 
+{
+	name = M9130
+	sprite = M9130
+	accuracy = 10
+	reliability = 13
+	price = 23866
+	weight = 4
+	handle_difficulty = 7
+	max_condition = 780
+	magazine = MosinMag
+	shoot_sound = mosin_shot
+	standart_magazine = MosinMag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 10				
+		}
+	}
+}
+
+#SKS = 
+#{
+#	name = SKS
+#	sprite = SKS
+#	accuracy = 9
+#	reliability = 13
+#	price = 29623
+#	weight = 3.9
+#	handle_difficulty = 9
+#	max_condition = 680
+#	magazine = SVT
+#	standart_magazine = SVTmag
+#	item_slots =
+#	{
+#		backweapon = 1
+#		large_gun = 1
+#		general_large = 1
+#	}
+#	fire_modes =
+#	{
+#		semi = 
+#		{		
+#			AP = 6				
+#		}
+#	}
+#}
+
+L85A2iron = 
+{
+	name = L85A2
+	sprite = L85A2Iron
+	accuracy = 8
+	reliability = 12
+	price = 35866
+	weight = 3.1
+	handle_difficulty = 10
+	max_condition = 650
+	magazine = STANAG
+	shoot_sound = SA80_shot
+	standart_magazine = STANAG
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+		auto = 
+		{
+			AP = 8
+			shots = 5
+			recoil = 4
+		}
+	}
+}
+
+M4A1 = 
+{
+	name = M4A1
+	sprite = M4A1
+	accuracy = 8
+	reliability = 12
+	price = 35866
+	weight = 3.1
+	handle_difficulty = 6
+	shoot_sound = M4_shot
+	max_condition = 690
+	magazine = STANAG
+	standart_magazine = STANAG
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 7
+			shots = 5
+			recoil = 6
+		}
+	}
+}
+
+M16A1 = 
+{
+	name = M16A1
+	sprite = M16A1
+	accuracy = 8
+	reliability = 12
+	price = 35866
+	weight = 3.1
+	handle_difficulty = 8
+	max_condition = 660
+	shoot_sound = M16_shot
+	magazine = STANAG
+	standart_magazine = STANAG
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 5				
+		}
+		auto = 
+		{
+			AP = 7
+			shots = 5
+			recoil = 3
+		}
+	}
+}
+
+VEPR = 
+{
+	name = Vepr
+	sprite = VEPR
+	accuracy = 10
+	reliability = 12
+	price = 47866
+	weight = 4.1
+	handle_difficulty = 11
+	max_condition = 550
+	shoot_sound = vepr_shot
+	magazine = VEPR
+	standart_magazine = VEPRmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 8				
+		}
+	}
+}
+
+FNFAL = 
+{
+	name = FN_FAL
+	sprite = FNFAL
+	accuracy = 12
+	reliability = 13
+	price = 31236
+	weight = 3.74
+	handle_difficulty = 11
+	magazine = FAL
+	shoot_sound = FNFAL_shot
+	standart_magazine = FNFALmag
+	max_condition = 750
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+		auto = 
+		{
+			AP = 9
+			shots = 4
+			recoil = 4
+		}
+	}
+}

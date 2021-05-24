@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Walls
+  - UI_noscaling
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Characters
+  - Walls
+  - Fences
+  - Cover
+  - SightObstruction
+  - PathfindingTempObstacle
+  - Projectiles
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: VerticalWalls
+    uniqueID: 862059727
+    locked: 0
+  - name: HorizontalWalls
+    uniqueID: 2785848369
+    locked: 0
+  - name: WallCaps
+    uniqueID: 640930957
+    locked: 0
+  - name: Ground objects
+    uniqueID: 3085191481
+    locked: 0
+  - name: Characters
+    uniqueID: 3703719147
+    locked: 0
+  - name: Interface
+    uniqueID: 1965726221
+    locked: 0

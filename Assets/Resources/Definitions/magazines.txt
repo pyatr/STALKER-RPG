@@ -1,0 +1,311 @@
+PM8Rounds = 
+{
+	name = PM_magazine
+	caliber = 9x18
+	capacity = 8
+	category = PM
+	AP_to_move = 2
+	weight = 0.002
+	price = 120
+	sprite = PMmag
+	item_slots = 
+	{
+		pistol_magazine = 2
+		general_small = 1
+		general_medium = 10
+		general_large = 20
+	}
+}
+
+PMm12Rounds =
+{
+	name = PMM_magazine
+	caliber = 9x18
+	capacity = 12
+	AP_to_move = 2
+	category = PMm
+	weight = 0.0022
+	price = 160
+	sprite = PMMmag
+	item_slots = 
+	{
+		pistol_magazine = 1
+		general_small = 1
+		general_medium = 8
+		general_large = 16
+	}
+}
+
+TwoRoundShotgunMag =
+{
+	integral
+	caliber = 12gauge
+	capacity = 2
+	category = BreakShotgunTwoRounds
+	weight = 0
+	price = 0
+	sprite = PMMmag
+	item_slots = 
+	{
+		general_small = 1
+	}
+}
+
+MosinMag =
+{
+	integral
+	caliber = 7.62x54
+	capacity = 5
+	category = MosinMag
+	weight = 0
+	price = 0
+	sprite = PMMmag
+	item_slots = 
+	{
+		general_small = 1
+	}
+}
+
+AKmag =
+{
+	name = AK_magazine
+	caliber = 7.62x39
+	capacity = 30
+	AP_to_move = 4
+	category = AK
+	weight = 0.016
+	price = 300
+	sprite = AKmag
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 3
+		general_large = 7
+	}
+}
+
+RPKmag =
+{
+	name = RPK_magazine
+	caliber = 7.62x39
+	capacity = 40
+	category = AK
+	weight = 0.021
+	AP_to_move = 6
+	price = 460
+	sprite = RPKmag
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 2
+		general_large = 5
+	}
+}
+
+#RPKdrummag = 
+#{
+#	caliber = 7.62x39
+#	capacity = 75
+#	category = AK
+#	reliabilty = -0.113
+#	weight = 0.0322
+#	price = 613
+#}
+
+AK74mag =
+{
+	name = AK74_magazine
+	caliber = 5.45x39
+	capacity = 30
+	category = AK74
+	weight = 0.014
+	AP_to_move = 4
+	price = 330
+	sprite = AK74mag
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 4
+		general_large = 8
+	}
+}
+
+RPK74mag =
+{
+	name = RPK74_magazine
+	caliber = 5.45x39
+	capacity = 45
+	category = AK74
+	weight = 0.020
+	AP_to_move = 6
+	price = 480
+	sprite = RPK74mag
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 2
+		general_large = 6
+	}
+}
+
+DPmag =
+{
+	name = DP_pan_magazine
+	caliber = 7.62x54
+	capacity = 47
+	category = DP
+	AP_to_move = 8
+	weight = 1.6
+	price = 693
+	sprite = DPmag
+	item_slots = 
+	{
+		pan_magazine = 1
+		general_medium = 1
+		general_large = 4
+	}
+}
+
+PPShmag =
+{
+	name = PPSh_pan_magazine
+	caliber = 7.62x25
+	capacity = 71
+	category = PPSh
+	AP_to_move = 6
+	weight = 1.1
+	price = 387
+	sprite = PPShmag
+	item_slots = 
+	{
+		pan_magazine = 1
+		general_medium = 1
+		general_large = 4
+	}
+}
+
+PPSmag =
+{
+	name = PPS_magazine
+	caliber = 7.62x25
+	capacity = 30
+	category = PPS
+	AP_to_move = 3
+	weight = 0.09
+	price = 355
+	sprite = PPS43mag
+	item_slots = 
+	{
+		smg_magazine = 1
+		general_medium = 5
+		general_large = 10
+	}
+}
+
+Saigamag8 =
+{
+	name = Saiga_magazine
+	caliber = 12g
+	capacity = 8
+	category = Saiga
+	AP_to_move = 3
+	weight = 0.09
+	price = 458
+	sprite = Saigamag8
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 3
+		general_large = 8
+	}
+}
+
+STANAG =
+{
+	name = STANAG_magazine
+	caliber = 5.56x45
+	capacity = 30
+	category = STANAG
+	AP_to_move = 4
+	weight = 0.117
+	price = 591
+	sprite = stanag
+	item_slots = 
+	{
+		STANAG_mag = 1
+		general_medium = 5
+		general_large = 8
+	}
+}
+
+SVTmag =
+{
+	name = SVT_magazine
+	caliber = 7.62x54
+	capacity = 10
+	category = SVT
+	weight = 0.140
+	AP_to_move = 4
+	price = 495
+	sprite = SVTmag
+	item_slots = 
+	{
+		rifle_magazine = 1
+		general_medium = 5
+		general_large = 8
+	}
+}
+
+TTmag = 
+{
+	name = TT_magazine
+	caliber = 7.62x25
+	capacity = 8
+	category = TT
+	weight = 0.002
+	AP_to_move = 2
+	price = 142
+	sprite = TTmag
+	item_slots = 
+	{
+		pistol_magazine = 2
+		general_small = 1
+		general_medium = 10
+		general_large = 20
+	}
+}
+
+VEPRmag =
+{
+	name = VEPR_magazine
+	caliber = 7.62x51
+	capacity = 10
+	category = VEPR
+	AP_to_move = 4
+	weight = 0.125
+	price = 441
+	sprite = VEPRmag
+	item_slots = 
+	{
+		rifle_magazine = 1
+		general_medium = 5
+		general_large = 12
+	}
+}
+
+FNFALmag =
+{
+	name = FN_FAL_magazine
+	caliber = 7.62x51
+	capacity = 20
+	category = FAL
+	AP_to_move = 5
+	weight = 0.200
+	price = 562
+	sprite = FNFALmag
+	item_slots = 
+	{		
+		general_medium = 4
+		general_large = 8
+	}
+}

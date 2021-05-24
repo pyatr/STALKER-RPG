@@ -1,0 +1,206 @@
+9x18 = 
+{
+	penetration = 7
+	tumble = 1
+	weight = 0.016
+	caliber = 9x18
+	price = 20
+	damage = 20
+	box = 16
+	AP_to_move = 6
+	distance = 10
+	color = {200 200 200}
+	sprite = 9x18box
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 4
+		general_large = 10
+	}
+	types = 
+	{
+		RG028 = 
+		{
+			penetration = 9
+			tumble = 1.1
+			price = 32
+		}
+	}
+}
+
+7.62x39 = 
+{	
+	penetration = 15
+	tumble = 1
+	weight = 0.024
+	caliber = 7.62x39
+	price = 100
+	AP_to_move = 6
+	damage = 37
+	box = 60
+	distance = 25
+	sprite = 762x39ammobox
+	color = {200 200 200}
+	item_slots =
+	{
+		general_medium = 2
+		general_large = 8
+	}
+	types = 
+	{
+		BP = 
+		{
+			penetration = 19
+			tumble = 0.9
+			price = 140
+			color = {250 50 50}
+		}
+		M67 = 
+		{
+			penetration = 16
+			tumble = 1.1
+			price = 122
+			color = {50 150 50}
+		}
+		BZ = 
+		{
+			incendiary_damage = 6
+			penetration = 19
+			price = 176
+			color = {50 150 150}
+		}
+		T-45 =
+		{
+			tracer = true
+			price = 145
+			color = {50 250 250}
+		}
+		UZ = 
+		{		
+			penetration = 16
+			tumble = 1.34
+			price = 165
+			color = {50 50 250}
+		}
+	}
+}
+
+5.45x39 = 
+{	
+	penetration = 14
+	tumble = 1
+	weight = 0.013
+	price = 87
+	caliber = 5.45x39
+	damage = 34
+	AP_to_move = 6
+	box = 120
+	sprite = 545box
+	distance = 26
+	color = {211 211 211}
+	item_slots =
+	{
+		general_medium = 1
+		general_large = 5
+	}
+	types = 
+	{
+		PP = 
+		{
+			damage = 37
+			penetration = 16
+			price = 110
+			weight = 0.014
+			color = {120 120 120}
+		}
+		BP = 
+		{
+			penetration = 18
+			price = 126
+			color = {250 100 100}
+		}
+	}
+}
+
+12gauge = 
+{	
+	penetration = 9
+	tumble = 1
+	weight = 0.018
+	price = 100
+	bullets = 12
+	caliber = 12gauge
+	damage = 3
+	box = 20
+	sprite = 12gauge
+	AP_to_move = 5
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 3
+		general_large = 10
+	}
+}
+
+5.56x45 = 
+{	
+	penetration = 13
+	tumble = 1
+	weight = 0.011
+	price = 103
+	caliber = 5.56x56
+	damage = 32
+	box = 20
+	sprite = 55645box
+	AP_to_move = 6
+	distance = 25
+	color = {211 211 211}
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 5
+		general_large = 10
+	}
+}
+
+7.62x54 = 
+{	
+	penetration = 19
+	tumble = 1
+	weight = 0.018
+	price = 150
+	caliber = 7.62x54
+	damage = 40
+	box = 20
+	AP_to_move = 6
+	sprite = 76254box
+	distance = 45
+	color = {211 211 211}
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 4
+		general_large = 8
+	}
+}
+
+7.62x51 = 
+{	
+	penetration = 19
+	tumble = 1
+	weight = 0.018
+	price = 161
+	caliber = 7.62x51
+	damage = 41
+	AP_to_move = 6
+	box = 20
+	sprite = 76251
+	distance = 45
+	color = {211 211 211}
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 4
+		general_large = 8
+	}
+}
