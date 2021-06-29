@@ -5,21 +5,22 @@ using UnityEngine.UI;
 
 public class Log : MonoBehaviour
 {
-    public List<string> log = new List<string>();
-    public Game game;
-
     private Text logText;
+    private World world;
+
+    public List<string> log = new List<string>();
 
     private void Start()
     {
         logText = transform.GetChild(0).GetComponent<Text>();
+        world = World.GetInstance();
     }
 
     public void UpdateLog(string s)
     {
         if (logText == null)
         {
-            Debug.Log(s);
+            Debug.Log("Update log: " + s);
             return;
         }
         log.Add(s);

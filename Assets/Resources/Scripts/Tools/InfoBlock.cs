@@ -54,20 +54,25 @@ public class InfoBlock
 
         if (subBlocks.Count > 0)
         {
-            foreach (InfoBlock subBlock in source.subBlocks)
+            foreach (InfoBlock sourceSubBlock in source.subBlocks)
             {
-                foreach (InfoBlock localSubBlock in subBlocks)
-                {
-                    if (localSubBlock.name == subBlock.name)
-                    {
-                        localSubBlock.Merge(subBlock);
-                    }
-                    else
-                    {
-                        subBlocks.Add(subBlock);
-                        break;
-                    }
-                }
+                InfoBlock localSubBlock = GetBlock(sourceSubBlock.name);
+                if (localSubBlock != null)
+                    localSubBlock.Merge(sourceSubBlock);
+                else
+                    subBlocks.Add(sourceSubBlock);
+                //foreach (InfoBlock localSubBlock in subBlocks)
+                //{
+                //    if (localSubBlock.name == sourceSubBlock.name)
+                //    {
+                //        localSubBlock.Merge(sourceSubBlock);
+                //    }
+                //    else
+                //    {
+                //        subBlocks.Add(sourceSubBlock);
+                //        break;
+                //    }
+                //}
             }
         }
         else
@@ -105,28 +110,31 @@ public class InfoBlock
         tabLevel++;
         foreach (InfoBlock ib in subBlocks)
         {
-            textForOutput.Add(tab + ib.name + " = ");            
-            textForOutput.Add(tab + "{");
-            ib.PrepareText(tabLevel);
-            textForOutput.Add(tab + "}");
+            if (ib != null)
+            {
+                textForOutput.Add(tab + ib.name + " = ");
+                textForOutput.Add(tab + "{");
+                ib.PrepareText(tabLevel);
+                textForOutput.Add(tab + "}");
+            }
+            else
+                Debug.Log("Infoblock at " + GetFullName() + " is null");
         }
     }
 
     public void WriteToFile(string name)
     {
+        textForOutput.Clear();
         PrepareText();
-        string path = Application.persistentDataPath + name + ".txt";
-        StreamWriter sw;
+        string path = Application.persistentDataPath + "/" + name;
         if (File.Exists(path))
             File.Delete(path);
-        using (sw = File.CreateText(path))
+        using (StreamWriter sw = new StreamWriter(path))
         {
-            foreach (string s in textForOutput)
-            {
+            foreach (string s in textForOutput)            
                 sw.WriteLine(s);
-            }
-            sw.Close();
         }
+        //File.WriteAllLines(path, textForOutput.ToArray());
         Debug.Log("Wrote " + this.name + " to " + path);
     }
 
@@ -216,6 +224,9 @@ public static class InfoBlockReader
     static int blockLevel;
     static InfoBlock baseBlock;
     static InfoBlock currentBlock;
+    static string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static string cyrillicAlphabet = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    static string permittedSymbols = "_.,-?!()";
 
     static void BraceOpen()
     {
@@ -263,6 +274,11 @@ public static class InfoBlockReader
         //Debug.Log("Named a block: " + currentBlock.name + " on block level " + blockLevel);
     }
 
+    static bool CharacterIsLetterOrDigit(char C)
+    {
+        return alphabet.Contains(C) || cyrillicAlphabet.Contains(C) || permittedSymbols.Contains(C) || char.IsDigit(C);
+    }
+
     static void ReadAllWordsAndCharacters(string data)
     {
         asac = new List<string>();//All strings and characters
@@ -275,12 +291,26 @@ public static class InfoBlockReader
                 line++;
             if (!readingComment)
             {
-                if (char.IsLetterOrDigit(C) || C == '_' || C == '.' || C == '"' || C == '-')
+                if (CharacterIsLetterOrDigit(C))
                 {
                     if (C != '.')
                         readLine += C;
                     else
-                        readLine += ',';
+                    {
+                        bool readingString = false;
+                        foreach (char letter in alphabet + cyrillicAlphabet) 
+                        {
+                            if (readLine.Contains(letter))
+                            {
+                                readingString = true;
+                                break;
+                            }
+                        }
+                        if (readingString)
+                            readLine += '.';
+                        else
+                            readLine += ',';
+                    }
                 }
                 else
                 {
@@ -341,8 +371,7 @@ public static class InfoBlockReader
 
     public static InfoBlock SplitTextIntoInfoBlocks(string data)
     {
-        baseBlock = new InfoBlock();
-        baseBlock.name = "Primary block";
+        baseBlock = new InfoBlock { name = "Primary block" };
         currentBlock = baseBlock;
         blockLevel = 1;
         ReadAllWordsAndCharacters(data);
@@ -374,6 +403,7 @@ public static class InfoBlockReader
                 }
             }
         }
+        //Debug.Log(baseBlock.name + " contains " + baseBlock.subBlocks.Count.ToString());
         return baseBlock;
     }
 }

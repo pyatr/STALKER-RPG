@@ -20,17 +20,17 @@ public class PathFinder : MonoBehaviour
         }
     }
 
-    public Game game;
+    public World world;
 
     public bool CanMoveFromPositionInDirection(Vector2 position, Direction direction)
     {
-        Vector2 targetPosition = position + DirectionToNumbers(direction) * game.cellSize;
+        Vector2 targetPosition = position + DirectionToNumbers(direction) * Game.Instance.cellSize;
         RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(position, targetPosition - position, Vector2.Distance(position, targetPosition));
         //Debug.DrawRay(position, raycastDirection, Color.red, 10);
         for (int i = 0; i < raycastHit2D.Length; i++)
         {
             GameObject objectHit = raycastHit2D[i].collider.gameObject;
-            if (game.nonWalkableLayers.Contains(objectHit.layer))
+            if (Game.Instance.nonWalkableLayers.Contains(objectHit.layer))
                 return false;
         }
         return true;
@@ -70,7 +70,7 @@ public class PathFinder : MonoBehaviour
             pathFindingDistance++;
         int nodeCount = pathFindingDistance * pathFindingDistance;
         int startCoordinates = pathFindingDistance / 2;
-        foreach (Character currentCharacter in game.activeCharacters)
+        foreach (Character currentCharacter in world.activeCharacters)
         {
             if ((Vector2)currentCharacter.transform.position == targetPosition && currentCharacter != GetComponent<Character>())
             {
@@ -84,8 +84,8 @@ public class PathFinder : MonoBehaviour
                 //return GetComponent<Character>().GetShortestPath(adjacentCells);
             }
         }
-        int xDistanceToTarget = (int)Math.Round((targetPosition.x - startPosition.x) / game.cellSize.x, MidpointRounding.AwayFromZero);
-        int yDistanceToTarget = (int)Math.Round((targetPosition.y - startPosition.y) / game.cellSize.y, MidpointRounding.AwayFromZero);
+        int xDistanceToTarget = (int)Math.Round((targetPosition.x - startPosition.x) / Game.Instance.cellSize.x, MidpointRounding.AwayFromZero);
+        int yDistanceToTarget = (int)Math.Round((targetPosition.y - startPosition.y) / Game.Instance.cellSize.y, MidpointRounding.AwayFromZero);
         if (xDistanceToTarget == 0 && yDistanceToTarget == 0)
             return nodes;
         if (Mathf.Abs(xDistanceToTarget) > startCoordinates || Mathf.Abs(yDistanceToTarget) > startCoordinates)
@@ -134,10 +134,10 @@ public class PathFinder : MonoBehaviour
             {
                 int currentNeighbourPositionX = currentNode.x + (int)DirectionToNumbers(direction).x;
                 int currentNeighbourPositionY = currentNode.y + (int)DirectionToNumbers(direction).y;
-                float x = (currentNode.x - startCoordinates) * game.cellSize.x + startPosition.x;
-                float y = (currentNode.y - startCoordinates) * game.cellSize.y + startPosition.y;
+                float x = (currentNode.x - startCoordinates) * Game.Instance.cellSize.x + startPosition.x;
+                float y = (currentNode.y - startCoordinates) * Game.Instance.cellSize.y + startPosition.y;
                 Vector2 currentPosition = new Vector2(x, y);
-                bool targetPositionNearby = Mathf.Abs(targetPosition.x - currentPosition.x) <= game.cellSize.x && Mathf.Abs(targetPosition.y - currentPosition.y) <= game.cellSize.y;
+                bool targetPositionNearby = Mathf.Abs(targetPosition.x - currentPosition.x) <= Game.Instance.cellSize.x && Mathf.Abs(targetPosition.y - currentPosition.y) <= Game.Instance.cellSize.y;
                 if (CanMoveFromPositionInDirection(currentPosition, direction))
                 {
                     if (currentNeighbourPositionX > 0 && currentNeighbourPositionX < pathFindingDistance &&

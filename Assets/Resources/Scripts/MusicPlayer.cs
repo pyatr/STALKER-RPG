@@ -7,13 +7,13 @@ public class MusicPlayer : MonoBehaviour
 {
     private AudioSource audioSource;
     private Object[] clips;
-    private Game game;
+    private World world;
 
-    private void Awake()
+    private void Start()
     {
+        world = World.GetInstance();
         audioSource = GetComponent<AudioSource>();
         clips = Resources.LoadAll("Music", typeof(AudioClip));
-        game = GameObject.Find("World").GetComponent<Game>();
         StartCoroutine(PlayMusic());
     }
 
@@ -34,6 +34,6 @@ public class MusicPlayer : MonoBehaviour
 
     private void Update()
     {
-        audioSource.volume = game.MusicVolume;
+        audioSource.volume = Game.Instance.MusicVolume;
     }
 }

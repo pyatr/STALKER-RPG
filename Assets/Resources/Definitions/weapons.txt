@@ -1,6 +1,6 @@
 PM = 
 {
-	name = PM
+	name = ПМ
 	sprite = PM
 	accuracy = 3
 	reliability = 14
@@ -8,6 +8,7 @@ PM =
 	price = 8649
 	weight = 0.73
 	magazine = PM
+	AP_to_move = 1
 	standart_magazine = PM8Rounds
 	max_condition = 300
 	handle_difficulty = 6
@@ -28,7 +29,7 @@ PM =
 	{
 		PMm = 
 		{
-			name = PMm
+			name = ПМм
 			sprite = PMM
 			magazine = PMm
 			max_condition = 350
@@ -39,20 +40,47 @@ PM =
 	}
 }
 
+TT33 = 
+{
+	name = ТТ-33
+	sprite = TT33
+	accuracy = 3
+	reliability = 14
+	price = 12320
+	weight = 0.662
+	magazine = TT
+	AP_to_move = 2
+	standart_magazine = TTmag
+	max_condition = 340
+	handle_difficulty = 9
+	shoot_sound = TT_shot
+	item_slots =
+	{
+		medium_pistol = 1
+		general_medium = 2
+		general_large = 5
+	}
+	fire_modes =
+	{
+		semi = 5
+	}	
+}
+
 AK = 
 {
-	name = AK
+	name = АК
 	sprite = AK
-	accuracy = 6
+	accuracy = 5
 	reliability = 16
-	price = 26156
+	price = 23156
 	weight = 4.3
 	handle_difficulty = 9
 	magazine = AK
+	AP_to_move = 5
 	distance_modifier = -2
 	standart_magazine = AKmag
 	shoot_sound = AK_shot
-	max_condition = 800
+	max_condition = 760
 	item_slots =
 	{
 		backweapon = 1
@@ -74,23 +102,17 @@ AK =
 	}
 	variations = 
 	{
-		AKS = 
-		{
-			name = AKS
-			sprite = AKS
-			price = 30112
-			weight = 4.1
-		}
 		AKMS = 
 		{
-			name = AKMS
+			name = АКМС
+			AP_to_move = 3
 			sprite = AKMS
-			price = 30569
+			price = 27569
 			weight = 3.0
 		}
 		AKM = 
 		{
-			name = AKM
+			name = АКМ
 			sprite = AKM
 			price = 29613
 			accuracy = 7
@@ -117,7 +139,7 @@ AK =
 
 AK74 = 
 {
-	name = AK74
+	name = АК74
 	sprite = AK74
 	accuracy = 7
 	reliability = 14
@@ -125,6 +147,7 @@ AK74 =
 	weight = 3.1
 	handle_difficulty = 7
 	recoil = 5
+	AP_to_move = 5
 	magazine = AK74
 	shoot_sound = AK74_shot
 	standart_magazine = AK74mag
@@ -152,18 +175,21 @@ AK74 =
 	{
 		AKS74 = 
 		{
-			name = AKS74
+			name = АКС74
 			sprite = AKS74
 			price = 32168
+			AP_to_move = 3
 			weight = 3.0
 		}
 		AK74u = 
 		{		
-			name = AK74u
+			name = АК74у
 			sprite = AKSU74
 			accuracy = 5
 			damage_bonus = -1
+			shoot_sound = AK74u_shot
 			price = 25563
+			AP_to_move = 2
 			reliability = 15
 			max_condition = 680
 			weight = 2.7
@@ -187,12 +213,13 @@ AK74 =
 
 RPK = 
 {
-	name = RPK
+	name = РПК
 	sprite = RPK
 	accuracy = 8
 	reliability = 14
 	price = 39718
 	weight = 4.2
+	AP_to_move = 6
 	handle_difficulty = 9
 	magazine = AK
 	shoot_sound = RPK_shot
@@ -221,7 +248,7 @@ RPK =
 
 RPK74 = 
 {
-	name = RPK74
+	name = РПК74
 	sprite = RPK74
 	accuracy = 8
 	reliability = 14
@@ -229,6 +256,7 @@ RPK74 =
 	weight = 3.8
 	shoot_sound = RPK74_shot
 	handle_difficulty = 9
+	AP_to_move = 6
 	max_condition = 760
 	magazine = AK74
 	standart_magazine = RPK74mag
@@ -255,14 +283,16 @@ RPK74 =
 
 PPSh = 
 {
-	name = PPSh
+	name = ППш
 	sprite = PPSh
 	accuracy = 6
-	reliability = 12
-	price = 21794
+	reliability = 10
+	price = 17904
 	weight = 4.1
 	handle_difficulty = 7
+	AP_to_move = 4
 	magazine = PPSh
+	shoot_sound = PPSh_shot
 	max_condition = 550
 	standart_magazine = PPShmag
 	item_slots =
@@ -288,15 +318,17 @@ PPSh =
 
 PPS43 = 
 {
-	name = PPS43
+	name = ППС-43
 	sprite = PPS43
-	accuracy = 6
+	accuracy = 5
 	reliability = 12
-	price = 21794
+	price = 16883
 	weight = 3.1
+	AP_to_move =3
 	handle_difficulty = 7
 	magazine = PPS
 	max_condition = 450
+	shoot_sound = PPS43_shot
 	standart_magazine = PPSmag
 	item_slots =
 	{
@@ -313,7 +345,7 @@ PPS43 =
 		auto = 
 		{
 			AP = 7
-			shots = 7
+			shots = 5
 			recoil = 5
 		}
 	}
@@ -321,15 +353,16 @@ PPS43 =
 
 DP = 
 {
-	name = DP
+	name = ДП-28
 	sprite = DP28
 	accuracy = 6
 	reliability = 11
 	price = 35866
 	weight = 9.12
 	shoot_sound = dp_shot
-	handle_difficulty = 12
+	handle_difficulty = 16
 	max_condition = 750
+	AP_to_move = 7
 	magazine = DP
 	standart_magazine = DPmag
 	item_slots =
@@ -348,21 +381,22 @@ DP =
 		{
 			AP = 9
 			shots = 4
-			recoil = 4
+			recoil = 3
 		}
 	}
 }
 
 SVT = 
 {
-	name = SVT40
+	name = СВТ-40
 	sprite = SVT40
 	accuracy = 10
 	reliability = 12
 	shoot_sound = svt_shot
-	price = 47866
+	price = 37866
 	weight = 4.1
-	handle_difficulty = 9
+	AP_to_move = 6
+	handle_difficulty = 12
 	max_condition = 720
 	magazine = SVT
 	standart_magazine = SVTmag
@@ -383,14 +417,15 @@ SVT =
 
 TOZ66 = 
 {	
-	name = TOZ66
+	name = ТОЗ-66
 	sprite = TOZ66
-	accuracy = 6
+	accuracy = 8
 	reliability = 18
 	price = 21674
 	shoot_sound = shotgun_shot
 	weight = 3.8
-	handle_difficulty = 8
+	AP_to_move = 5
+	handle_difficulty = 5
 	max_condition = 500
 	magazine = BreakShotgunTwoRounds
 	standart_magazine = TwoRoundShotgunMag
@@ -417,11 +452,12 @@ TOZ66 =
 	{
 		TOZ66sawnoff = 
 		{	
-			name = TOZ66_sawn-off
+			name = Обрез_ТОЗ-66
 			sprite = TOZ66sawnoff
 			accuracy = 2
 			price = 15464
 			weight = 2.5
+			AP_to_move = 3
 			shoot_sound = sawnoff_shot
 			handle_difficulty = 12
 			fire_modes =
@@ -441,14 +477,106 @@ TOZ66 =
 	}
 }
 
+TOZ34 = 
+{	
+	name = ТОЗ-34
+	sprite = TOZ34
+	accuracy = 8
+	reliability = 18
+	price = 20345
+	shoot_sound = shotgun_shot
+	weight = 3.3
+	AP_to_move = 5
+	handle_difficulty = 5
+	max_condition = 530
+	magazine = BreakShotgunTwoRounds
+	standart_magazine = TwoRoundShotgunMag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 8				
+		}
+		burst = 
+		{		
+			AP = 9
+			shots = 2
+			recoil = 2
+		}
+	}
+	variations =
+	{
+		TOZ34sawnoff = 
+		{	
+			name = Обрез_ТОЗ-34
+			sprite = TOZ34sawnoff
+			accuracy = 2
+			price = 14634
+			weight = 2.4
+			AP_to_move = 3
+			shoot_sound = sawnoff_shot
+			handle_difficulty = 12
+			fire_modes =
+			{
+				semi = 
+				{		
+					AP = 6
+				}
+				burst = 
+				{		
+					AP = 7
+					shots = 2
+					recoil = 4
+				}
+			}
+		}	
+	}
+}
+
+Saiga = 
+{	
+	name = Карабин_Сайга_12
+	sprite = Saiga12k
+	accuracy = 10
+	reliability = 13
+	price = 35364
+	shoot_sound = shotgun_shot
+	weight = 3.5
+	AP_to_move = 5
+	handle_difficulty = 7
+	max_condition = 550
+	magazine = Saiga
+	standart_magazine = Saigamag8
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 8				
+		}
+	}
+}
+
 Mosin = 
 {
-	name = M9130
+	name = Винтовка_Мосина
 	sprite = M9130
 	accuracy = 10
 	reliability = 13
 	price = 23866
 	weight = 4
+	AP_to_move = 5
 	handle_difficulty = 7
 	max_condition = 780
 	magazine = MosinMag
@@ -464,37 +592,72 @@ Mosin =
 	{
 		semi = 
 		{		
-			AP = 10				
+			AP = 9			
 		}
 	}
 }
 
-#SKS = 
-#{
-#	name = SKS
-#	sprite = SKS
-#	accuracy = 9
-#	reliability = 13
-#	price = 29623
-#	weight = 3.9
-#	handle_difficulty = 9
-#	max_condition = 680
-#	magazine = SVT
-#	standart_magazine = SVTmag
-#	item_slots =
-#	{
-#		backweapon = 1
-#		large_gun = 1
-#		general_large = 1
-#	}
-#	fire_modes =
-#	{
-#		semi = 
-#		{		
-#			AP = 6				
-#		}
-#	}
-#}
+SKS = 
+{
+	name = СКС
+	sprite = SKS
+	accuracy = 9
+	reliability = 13
+	price = 29623
+	weight = 3.9
+	handle_difficulty = 9
+	max_condition = 680
+	magazine = SKSmag
+	shoot_sound = SKS_shot
+	standart_magazine = SKSmag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+	}
+}
+
+Type63 = 
+{
+	name = Тип_63
+	sprite = Type63
+	accuracy = 8
+	reliability = 11
+	price = 20162
+	weight = 4.0
+	handle_difficulty = 12
+	max_condition = 590
+	magazine = AK
+	shoot_sound = SKS_shot
+	standart_magazine = Type63mag
+	item_slots =
+	{
+		backweapon = 1
+		large_gun = 1
+		general_large = 1
+	}
+	fire_modes =
+	{
+		semi = 
+		{		
+			AP = 6				
+		}
+		auto = 
+		{
+			AP = 8
+			shots = 5
+			recoil = 7
+		}
+	}
+}
 
 L85A2iron = 
 {
@@ -504,6 +667,7 @@ L85A2iron =
 	reliability = 12
 	price = 35866
 	weight = 3.1
+	AP_to_move = 5
 	handle_difficulty = 10
 	max_condition = 650
 	magazine = STANAG
@@ -538,6 +702,7 @@ M4A1 =
 	reliability = 12
 	price = 35866
 	weight = 3.1
+	AP_to_move = 4
 	handle_difficulty = 6
 	shoot_sound = M4_shot
 	max_condition = 690
@@ -572,6 +737,7 @@ M16A1 =
 	reliability = 12
 	price = 35866
 	weight = 3.1
+	AP_to_move = 5
 	handle_difficulty = 8
 	max_condition = 660
 	shoot_sound = M16_shot
@@ -600,13 +766,14 @@ M16A1 =
 
 VEPR = 
 {
-	name = Vepr
+	name = Карабин_Вепрь-308
 	sprite = VEPR
 	accuracy = 10
 	reliability = 12
 	price = 47866
-	weight = 4.1
-	handle_difficulty = 11
+	weight = 4.3
+	AP_to_move = 6
+	handle_difficulty = 9
 	max_condition = 550
 	shoot_sound = vepr_shot
 	magazine = VEPR
@@ -634,7 +801,8 @@ FNFAL =
 	reliability = 13
 	price = 31236
 	weight = 3.74
-	handle_difficulty = 11
+	AP_to_move = 6
+	handle_difficulty = 13
 	magazine = FAL
 	shoot_sound = FNFAL_shot
 	standart_magazine = FNFALmag

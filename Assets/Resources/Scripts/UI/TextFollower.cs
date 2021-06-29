@@ -21,6 +21,7 @@ public class TextFollower : MonoBehaviour
             if (objectToFollow.gameObject.activeSelf)
             {
                 transform.position = Camera.main.WorldToScreenPoint((Vector2)objectToFollow.position + new Vector2(0, 0) + offset);
+                //transform.localScale = Vector2.one * Camera.main.orthographicSize;
                 return;
             }
         }

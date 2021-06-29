@@ -1,43 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public static class TextTools
 {
-    static string[] supportedFormats = { "txt", "csv", "lua" };
-
-    static bool IsValidFile(string url)
+    public static string FirstCharToUpper(string input)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            Int32 count = 2;
-            char[] separator = { '.' };
-            string[] s = url.Split(separator, count);
-            if (s[1] == supportedFormats[i])
-                return true;
-        }
-        return false;
+        return input.First().ToString().ToUpper() + input.Substring(1);
     }
 
     public static List<string> GetTextFromFile(string url)
     {
         List<string> newList = new List<string>();
-        if (!IsValidFile(url))
-            return newList;
-        using (StreamReader reader = new StreamReader(url))
-            while (!reader.EndOfStream)
-                newList.Add(reader.ReadLine());
+        if (File.Exists(url))
+        {
+            newList = File.ReadAllLines(url).ToList();
+            //using (StreamReader reader = new StreamReader(url))
+            //    while (!reader.EndOfStream)
+            //        newList.Add(reader.ReadLine());
+        }
         return newList;
     }
 
     public static string GetTextFromFileAsString(string url)
     {
         string text = "";
-        if (!IsValidFile(url))
-            return text;
-        using (StreamReader reader = new StreamReader(url))
-            text = reader.ReadToEnd();
+        if (File.Exists(url))
+        {
+            text = File.ReadAllText(url);
+            //using (StreamReader reader = new StreamReader(url))
+            //    text = reader.ReadToEnd();
+        }
         return text;
     }
 
@@ -59,9 +54,7 @@ public static class TextTools
         using (sw = File.CreateText(path))
         {
             foreach (string s in lines)
-            {
                 sw.WriteLine(s);
-            }
             sw.Close();
         }
     }

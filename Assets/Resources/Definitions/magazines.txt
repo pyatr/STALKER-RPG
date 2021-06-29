@@ -1,6 +1,6 @@
 PM8Rounds = 
 {
-	name = PM_magazine
+	name = Магазин_для_ПМ
 	caliber = 9x18
 	capacity = 8
 	category = PM
@@ -19,7 +19,7 @@ PM8Rounds =
 
 PMm12Rounds =
 {
-	name = PMM_magazine
+	name = Магазин_для_ПММ
 	caliber = 9x18
 	capacity = 12
 	AP_to_move = 2
@@ -39,6 +39,7 @@ PMm12Rounds =
 TwoRoundShotgunMag =
 {
 	integral
+	name = Ты_как_из_оружия_это_достал?
 	caliber = 12gauge
 	capacity = 2
 	category = BreakShotgunTwoRounds
@@ -68,7 +69,7 @@ MosinMag =
 
 AKmag =
 {
-	name = AK_magazine
+	name = Магазин_для_АК
 	caliber = 7.62x39
 	capacity = 30
 	AP_to_move = 4
@@ -84,9 +85,27 @@ AKmag =
 	}
 }
 
+Type63mag =
+{
+	name = Магазин_для_Тип_63
+	caliber = 7.62x39
+	capacity = 20
+	AP_to_move = 3
+	category = AK
+	weight = 0.012
+	price = 160
+	sprite = Type63mag
+	item_slots = 
+	{
+		AK_mag = 1
+		general_medium = 4
+		general_large = 8
+	}
+}
+
 RPKmag =
 {
-	name = RPK_magazine
+	name = Магазин_для_РПК
 	caliber = 7.62x39
 	capacity = 40
 	category = AK
@@ -114,7 +133,7 @@ RPKmag =
 
 AK74mag =
 {
-	name = AK74_magazine
+	name = Магазин_для_АК74
 	caliber = 5.45x39
 	capacity = 30
 	category = AK74
@@ -132,7 +151,7 @@ AK74mag =
 
 RPK74mag =
 {
-	name = RPK74_magazine
+	name = Магазин_для_РПК74
 	caliber = 5.45x39
 	capacity = 45
 	category = AK74
@@ -150,7 +169,7 @@ RPK74mag =
 
 DPmag =
 {
-	name = DP_pan_magazine
+	name = Дисковый_магазин_для_ДП-28
 	caliber = 7.62x54
 	capacity = 47
 	category = DP
@@ -168,7 +187,7 @@ DPmag =
 
 PPShmag =
 {
-	name = PPSh_pan_magazine
+	name = Дисковый_магазин_для_ППШ
 	caliber = 7.62x25
 	capacity = 71
 	category = PPSh
@@ -186,7 +205,7 @@ PPShmag =
 
 PPSmag =
 {
-	name = PPS_magazine
+	name = Магазин_для_ППС
 	caliber = 7.62x25
 	capacity = 30
 	category = PPS
@@ -204,8 +223,8 @@ PPSmag =
 
 Saigamag8 =
 {
-	name = Saiga_magazine
-	caliber = 12g
+	name = Магазин_для_карабина_Сайга
+	caliber = 12gauge
 	capacity = 8
 	category = Saiga
 	AP_to_move = 3
@@ -222,7 +241,7 @@ Saigamag8 =
 
 STANAG =
 {
-	name = STANAG_magazine
+	name = Магазин_STANAG
 	caliber = 5.56x45
 	capacity = 30
 	category = STANAG
@@ -240,7 +259,7 @@ STANAG =
 
 SVTmag =
 {
-	name = SVT_magazine
+	name = Магазин_для_СВТ-40
 	caliber = 7.62x54
 	capacity = 10
 	category = SVT
@@ -258,7 +277,7 @@ SVTmag =
 
 TTmag = 
 {
-	name = TT_magazine
+	name = Магазин_для_ТТ
 	caliber = 7.62x25
 	capacity = 8
 	category = TT
@@ -277,7 +296,7 @@ TTmag =
 
 VEPRmag =
 {
-	name = VEPR_magazine
+	name = Магазин_для_карабина_Вепрь
 	caliber = 7.62x51
 	capacity = 10
 	category = VEPR
@@ -293,9 +312,24 @@ VEPRmag =
 	}
 }
 
+SKSmag = 
+{	
+	integral
+	caliber = 7.62x39
+	capacity = 10
+	category = SKSmag
+	weight = 0
+	price = 0
+	sprite = PMMmag
+	item_slots = 
+	{
+		general_small = 1
+	}
+}
+
 FNFALmag =
 {
-	name = FN_FAL_magazine
+	name = Магазин_для_FN_FAL
 	caliber = 7.62x51
 	capacity = 20
 	category = FAL

@@ -15,15 +15,14 @@ public class UIslot : MonoBehaviour
 
     public ItemSlot pocket;
     public InventoryManager inventoryManager;
-    public Game game;
+    public bool TradeMode { get { return inventoryManager.tradeMode; } }
 
     float counterScale = 0.7f;
     Dictionary<SlotCounter, GameObject> counters = new Dictionary<SlotCounter, GameObject>();
 
-    public void Create(InventoryManager inventoryManager, Game game)
+    public void Create(InventoryManager inventoryManager)
     {
         this.inventoryManager = inventoryManager;
-        this.game = game;
         AddCounterToSlot("CounterBottomRight", SlotCounter.LowerRight);
         AddCounterToSlot("CounterBottomLeft", SlotCounter.LowerLeft);
         AddCounterToSlot("CounterTopRight", SlotCounter.UpperRight);
@@ -56,14 +55,15 @@ public class UIslot : MonoBehaviour
             UpdateSlotCounter(counter.Key, counter.Value);
         if (item != null)
         {
-            if (item.GetComponent<Item>().sprite != null)
-                SetSlotImage(slotImage, item.GetComponent<Item>().sprite);
-            ChangeSlotText(item.GetComponent<Item>().displayName);
+            Item itemComponent = item.GetComponent<Item>();
+            if (itemComponent.Sprite != null)
+                SetSlotImage(slotImage, itemComponent.Sprite);
+            ChangeSlotText(itemComponent.displayName);
         }
         else
         {
             Sprite sprite = null;
-            foreach (InfoBlock slotTemplate in game.slots.subBlocks)
+            foreach (InfoBlock slotTemplate in Game.Instance.Slots.subBlocks)
                 if (slotTemplate.name == GetComponent<UIslot>().pocket.slotType)
                     foreach (KeyValuePair<string, string> kvp in slotTemplate.namesValues)
                         switch (kvp.Key)
@@ -90,21 +90,27 @@ public class UIslot : MonoBehaviour
         counter.transform.SetParent(transform);
         Text counterText = counter.AddComponent<Text>();
         counterText.text = "";
-        counterText.font = game.defaultFont;//(Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
+        counterText.font = Game.Instance.DefaultFont;//(Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
         counterText.color = new Color32(222, 222, 222, 255);
         counterText.text = "0";
-        counterText.alignment = TextAnchor.MiddleRight;
+        switch (counterType)
+        {
+            case SlotCounter.LowerLeft: counterText.alignment = TextAnchor.LowerLeft; break;
+            case SlotCounter.UpperLeft: counterText.alignment = TextAnchor.UpperLeft; break;
+            case SlotCounter.LowerRight: counterText.alignment = TextAnchor.LowerRight; break;
+            case SlotCounter.UpperRight: counterText.alignment = TextAnchor.UpperRight; break;
+        }
         int fontSize = 11;
         counterText.fontSize = fontSize;
         counterText.resizeTextMaxSize = fontSize;
         counterText.verticalOverflow = VerticalWrapMode.Overflow;
         Vector2 anchor = new Vector2((int)counterType % 2, (int)counterType / 2);
         RectTransform rectTransform = counter.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(8 * maxDigits, 16);
+        rectTransform.sizeDelta = new Vector2(64, 16);
         rectTransform.anchorMin = anchor;
         rectTransform.anchorMax = anchor;
         rectTransform.pivot = anchor;
-        rectTransform.anchoredPosition = new Vector2(0 - 16 * anchor.x, 0);
+        rectTransform.anchoredPosition = new Vector2(4 - 20 * anchor.x, 0);
         rectTransform.localScale = Vector3.one;
         GameObject counterIcon = new GameObject("Icon") { layer = 5 };
         counterIcon.transform.SetParent(rectTransform.transform);
@@ -156,6 +162,7 @@ public class UIslot : MonoBehaviour
         GameObject objectInSlot = currentPocket.GetItem();
         if (counter != null && objectInSlot != null)
         {
+            Item itemComponent = objectInSlot.GetComponent<Item>();
             Firearm firearmComponent = objectInSlot.GetComponent<Firearm>();
             Magazine magazineComponent = objectInSlot.GetComponent<Magazine>();
             AmmoBox ammoBoxComponent = objectInSlot.GetComponent<AmmoBox>();
@@ -172,12 +179,12 @@ public class UIslot : MonoBehaviour
                             GetCounterText(counter).text = firearmComponent.magazine.GetComponent<Magazine>().ammo.ToString();
                             if (firearmComponent.magazine.GetComponent<Magazine>().currentCaliber != null)
                                 GetCounterText(counter).color = firearmComponent.magazine.GetComponent<Magazine>().currentCaliber.textColor;
-                            GetCounterIcon(counter).sprite = game.icons.ammoIcon;
+                            GetCounterIcon(counter).sprite = Game.Instance.Icons.ammoIcon;
                             return;
                         }
                         else
                         {
-                            GetCounterIcon(counter).sprite = game.icons.nomagazineIcon;
+                            GetCounterIcon(counter).sprite = Game.Instance.Icons.nomagazineIcon;
                             GetCounterText(counter).text = "0";
                             GetCounterText(counter).enabled = false;
                             return;
@@ -188,21 +195,21 @@ public class UIslot : MonoBehaviour
                         GetCounterText(counter).text = magazineComponent.ammo.ToString();
                         if (magazineComponent.currentCaliber != null)
                             GetCounterText(counter).color = magazineComponent.currentCaliber.textColor;
-                        GetCounterIcon(counter).sprite = game.icons.ammoIcon;
+                        GetCounterIcon(counter).sprite = Game.Instance.Icons.ammoIcon;
                         return;
                     }
                     if (ammoBoxComponent)
                     {
                         GetCounterText(counter).text = ammoBoxComponent.amount.ToString();
                         GetCounterText(counter).color = ammoBoxComponent.bulletType.textColor;
-                        GetCounterIcon(counter).sprite = game.icons.ammoBoxIcon;
+                        GetCounterIcon(counter).sprite = Game.Instance.Icons.ammoBoxIcon;
                         return;
                     }
-                    if (LBEcomponent && (name == "Vest" || name == "Backpack" || name == "Belt" || name.Contains("ThighRig") || name.Contains("OutsideSlot"))) 
+                    if (LBEcomponent && (name == "Vest" || name == "Backpack" || name == "Belt" || name.Contains("ThighRig") || name.Contains("OutsideSlot")))
                     {
                         int occupiedPockets = LBEcomponent.GetItemCount();
                         GetCounterText(counter).text = occupiedPockets.ToString();
-                        GetCounterIcon(counter).sprite = game.icons.pocketIcon;
+                        GetCounterIcon(counter).sprite = Game.Instance.Icons.pocketIcon;
                         return;
                     }
                     break;
@@ -219,7 +226,7 @@ public class UIslot : MonoBehaviour
                     }
                     return;
                 case SlotCounter.UpperRight:
-                    if (firearmComponent)
+                    if (firearmComponent && !TradeMode)
                     {
                         string[] fireModes = { "MANUAL", "SEMI", "BURST", "AUTO" };
                         EnableCounterText(counter);
@@ -230,15 +237,37 @@ public class UIslot : MonoBehaviour
                     //Scopes
                     break;
                 case SlotCounter.UpperLeft:
-                    if (LBEcomponent && name == "Vest" || name == "Backpack" || name == "Belt" || name.Contains("ThighRig"))
+                    if (!TradeMode)
                     {
-                        if (LBEcomponent.GetComponent<ItemExtension>())
+                        if (LBEcomponent && name == "Vest" || name == "Backpack" || name == "Belt" || name.Contains("ThighRig"))
                         {
-                            EnableCounterText(counter);
-                            GetCounterText(counter).text = "E";
-                            GetCounterText(counter).color = Color.green;
+                            if (LBEcomponent.GetComponent<ItemExtension>())
+                            {
+                                EnableCounterText(counter);
+                                GetCounterText(counter).text = "E";
+                                GetCounterText(counter).color = Color.green;
+                            }
+                            return;
                         }
-                        return;
+                    }
+                    else
+                    {
+                        if (pocket.GetOwner() == inventoryManager.controlledCharacter)
+                        {
+                            //Debug.Log(itemComponent.displayName + " belongs to player");
+                            EnableCounterText(counter);
+                            GetCounterText(counter).text = (itemComponent.Price * (1.0f - inventoryManager.sellPriceModifier)).ToString();
+                            GetCounterText(counter).color = Color.yellow;
+                            return;
+                        }
+                        if (pocket.GetOwner() == inventoryManager.merchantStock.transform.parent.GetComponent<Character>())
+                        {
+                            //Debug.Log(itemComponent.displayName + " belongs to merchant");
+                            EnableCounterText(counter);
+                            GetCounterText(counter).text = (itemComponent.Price * (1.0f + inventoryManager.buyPriceModifier)).ToString();
+                            GetCounterText(counter).color = Color.yellow;
+                            return;
+                        }
                     }
                     break;
             }

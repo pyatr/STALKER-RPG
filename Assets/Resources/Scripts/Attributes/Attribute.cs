@@ -73,24 +73,22 @@ public class Attribute
         AboveMax
     }
 
-    public float value, minValue, maxValue;
-    string _name = "Dummy";
+    private float value, minValue, maxValue;
+    private string name = "Dummy";
     AttributeGrade grade = null;
 
-    public string name
-    {
-        get
-        {
-            return _name;
-        }
-    }
+    public string Name { get { return name; } }
+    public float Value { get { return value; } }
+    public float MinValue { get { return minValue; } set { minValue = value; } }
+    public float MaxValue { get { return maxValue; } set { maxValue = value; } }
 
-    public Attribute(string name, float value, float minValue = 0, float maxValue = 100)
+    public Attribute(string name, float value, float minValue = -2000000000, float maxValue = 2000000000)
     {
-        _name = name.Replace('_', ' ');
+        this.name = name.Replace('_', ' ');
         this.value = value;
         this.minValue = minValue;
         this.maxValue = maxValue;
+        //Debug.Log("Created attribute " + this.name + ", " + value + ", " + minValue + ", " + maxValue);
     }
 
     public void SetGrade(AttributeGrade grade)
@@ -102,6 +100,13 @@ public class Attribute
     {
         if (grade != null)
             grade.showPrecise = precise;
+    }
+
+    public float GetPercentage01()
+    {
+        if (maxValue == 0)
+            return 0f;
+        return value / maxValue;
     }
 
     public void WriteToText(Text text)
@@ -151,19 +156,19 @@ public class Attribute
 
     public string GetValueNonprecise()
     {
-        if (grade != null)        
-            return grade.GiveValueRating(value);        
+        if (grade != null)
+            return grade.GiveValueRating(value);
         return value.ToString();
-    }
-
-    public float GetValue()
-    {
-        //Debug.Log(name + " = " + value);
-        return value;
     }
 
     public Attribute ShallowCopy()
     {
-        return (Attribute)this.MemberwiseClone();
+        Attribute copy = (Attribute)MemberwiseClone();
+        copy.maxValue = maxValue;
+        copy.minValue = minValue;
+        copy.value = value;
+        copy.grade = grade;
+        copy.name = name;
+        return copy;
     }
 }

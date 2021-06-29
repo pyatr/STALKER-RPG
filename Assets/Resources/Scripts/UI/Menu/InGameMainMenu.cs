@@ -5,9 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class InGameMainMenu : MonoBehaviour
 {
-    public void QuitGame()
+    private World world;
+
+    private void Start()
     {
-        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+        world = World.GetInstance();
     }
 
     private void SwitchTo(string menuName)
@@ -20,6 +22,11 @@ public class InGameMainMenu : MonoBehaviour
         }
     }
 
+    public void OnDisable()
+    {
+        SwitchToMenu();
+    }
+
     public void SwitchToMenu()
     {
         SwitchTo("MenuButtons");
@@ -30,13 +37,24 @@ public class InGameMainMenu : MonoBehaviour
         SwitchTo("Settings");
     }
 
-    public void SwitchToGameLoad()
+    public void SaveGame()
     {
-        SwitchTo("GameLoadMenu");
+        world.GetComponent<Save>().SaveGame(world.currentSlot);
+    }
+
+    public void LoadGame()
+    {
+        SceneManager.LoadScene("Game", LoadSceneMode.Single);
+        //world.GetComponent<Save>().LoadGame(world.currentSlot);
     }
 
     public void SwitchToHelp()
     {
         SwitchTo("HelpWindow");
+    }
+
+    public void QuitGame()
+    {
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 }

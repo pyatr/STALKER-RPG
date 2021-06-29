@@ -93,22 +93,26 @@ public class ItemSlot : MonoBehaviour
         return false;
     }
 
+    public Character GetOwner()
+    {
+        Transform currentTransform = transform;
+        while (currentTransform.parent != null && !currentTransform.GetComponent<Character>())
+            currentTransform = currentTransform.parent;
+        return currentTransform.GetComponent<Character>();
+    }
+
     public bool PlaceItem(GameObject item)
     {
         if (ItemFits(item))
         {
             Item itemComponent = item.GetComponent<Item>();
-            Transform currentTransform = transform;
-            Character owner = null;
-            while (currentTransform.parent != null && !currentTransform.GetComponent<Character>())
-                currentTransform = currentTransform.parent;
-            owner = currentTransform.GetComponent<Character>();
+            Character owner = GetOwner();
             if (owner != null)
             {
                 if (itemComponent.GetWeight() + owner.CalculateEncumbrance() > owner.MaxEncumbrance)
                 {
-                    itemComponent.game.UpdateLog(itemComponent.displayName + " is too heavy.");
-                    itemComponent.game.GetComponent<InventoryManager>().OverrideItemViewText(itemComponent.displayName + " is too heavy.");
+                    itemComponent.world.UpdateLog(itemComponent.displayName + " is too heavy.");
+                    itemComponent.world.GetComponent<InventoryManager>().OverrideItemViewText(itemComponent.displayName + " is too heavy.");
                     return false;
                 }
             }
@@ -119,10 +123,8 @@ public class ItemSlot : MonoBehaviour
                 for (int i = 0; i < itemComponent.secondarySlots.Count; i++)
                 {
                     GameObject itemExtension = Instantiate(item);
-                    itemComponent.extensions.Add(itemExtension);
                     itemExtension.name = item.name + "Extension";
                     Item itemExtensionItemComponent = itemExtension.GetComponent<Item>();
-                    itemExtensionItemComponent.slots.Clear();
                     itemExtensionItemComponent.basePrice = 0;
                     //Color32[] pixels = itemComponent.sprite.texture.GetPixels32();
                     //for (int j = 0; j < pixels.Length; j++)
@@ -134,24 +136,33 @@ public class ItemSlot : MonoBehaviour
                     //Texture2D newTexture = new Texture2D(itemComponent.sprite.texture.width, itemComponent.sprite.texture.height);
                     //newTexture.SetPixels32(pixels);
                     //newTexture.Apply();
-                    itemExtensionItemComponent.sprite = itemComponent.sprite;//Sprite.Create(newTexture, itemComponent.sprite.rect, itemComponent.sprite.pivot);
+                    itemExtensionItemComponent.Sprite = itemComponent.Sprite;//Sprite.Create(newTexture, itemComponent.sprite.rect, itemComponent.sprite.pivot);
                     itemExtensionItemComponent.secondarySlots.Clear();
+                    itemExtensionItemComponent.primarySlot = itemComponent.secondarySlots[i];
+                    itemExtensionItemComponent.slots.Clear();
                     itemExtensionItemComponent.slots.Add(itemComponent.secondarySlots[i], 1);
                     for (int j = 0; j < itemExtension.transform.childCount; j++)
                         for (int k = 0; k < itemExtension.transform.GetChild(j).childCount; k++)
                             Destroy(itemExtension.transform.GetChild(j).GetChild(k).gameObject);
 
                     for (int j = 0; j < item.transform.childCount; j++)
-                        for (int k = 0; k < item.transform.GetChild(j).childCount; k++)
-                            if (item.transform.GetChild(j).childCount > 0)
-                                item.transform.GetChild(j).GetChild(0).parent = itemExtension.transform.GetChild(j);
-                    itemExtension.GetComponent<ObjectAttributes>().SetAttribute("Weight", 0f);
-                    itemExtension.AddComponent<ItemExtension>().extensionOf = item;
-                    itemExtensionItemComponent.primarySlot = itemComponent.secondarySlots[i];
-                    string slotTypeFormatted = StringExtensions.FirstCharToUpper(itemComponent.secondarySlots[i]);
+                    {
+                        Transform currentSlot = item.transform.GetChild(j);
+                        List<GameObject> itemsToTransfer = new List<GameObject>();
+                        for (int k = 0; k < currentSlot.childCount; k++)
+                            itemsToTransfer.Add(currentSlot.GetChild(k).gameObject);
+                        foreach (GameObject itemToTransfer in itemsToTransfer)
+                            itemToTransfer.transform.parent = itemExtension.transform.GetChild(j);
+                    }
+                    ItemExtension itemExtensionComponent = itemExtension.AddComponent<ItemExtension>();
+                    itemExtensionComponent.itemComponent = itemExtensionItemComponent;
+                    itemExtensionComponent.extensionOf = TextTools.FirstCharToUpper(itemComponent.primarySlot);
+                    itemComponent.extensions.Add(itemExtensionComponent);
+                    string slotTypeFormatted = TextTools.FirstCharToUpper(itemComponent.secondarySlots[i]);
                     transform.parent.parent.GetComponent<Character>().PlaceItemInSlot(itemExtension, (BuiltinCharacterSlots)Enum.Parse(typeof(BuiltinCharacterSlots), slotTypeFormatted));
                 }
             }
+            itemComponent.lastOwner = owner;
             return true;
         }
         //Debug.Log("Could not place " + item.name + " to " + gameObject.name);

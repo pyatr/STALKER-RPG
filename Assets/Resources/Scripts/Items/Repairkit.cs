@@ -6,7 +6,7 @@ public class Repairkit : Kit
 {
     public void OnUse(bool inCombat = false)
     {
-        Character owner = ItemComponent.GetOwner().GetComponent<Character>();
+        Character owner = ItemComponent.GetOwner();
         if (owner != null)
         {
             inCombat = owner.IsInCombat();
@@ -31,7 +31,7 @@ public class Repairkit : Kit
             if (!itemRepaired)
             {
                 if (owner.IsPlayer())
-                    owner.game.UpdateLog("No items left to repair");
+                    owner.world.UpdateLog("No items left to repair");
                 //owner.waitingTurns = 0;
                 //owner.usingKit = false;
             }
@@ -57,26 +57,26 @@ public class Repairkit : Kit
     private bool RepairItem(Character owner, GameObject item, bool ownerIsInCombat)
     {
         Attribute condition = item.GetComponent<ObjectAttributes>().GetAttribute("Item condition");
-        if (condition.value < condition.maxValue)
+        if (condition.Value < condition.MaxValue)
         {
-            float previousCondition = condition.value;
+            float previousCondition = condition.Value;
             float bonus = 1;
             if (!ownerIsInCombat)
                 bonus = 4;
-            Attribute.ChangeResult result = condition.Modify(owner.GetAttribute("Mechanical").value / 4 * bonus);
+            Attribute.ChangeResult result = condition.Modify(owner.GetAttribute("Mechanical").Value / 4 * bonus);
             if (owner.IsPlayer())
-                owner.game.UpdateLog(item.GetComponent<Item>().displayName + " condition improved from " + ((int)previousCondition).ToString() + " to " + ((int)condition.value).ToString());
+                owner.world.UpdateLog(item.GetComponent<Item>().displayName + " condition improved from " + ((int)previousCondition).ToString() + " to " + ((int)condition.Value).ToString());
             if (result == Attribute.ChangeResult.AboveMax)
             {
                 if (owner.IsPlayer())
-                    owner.game.UpdateLog(item.GetComponent<Item>().displayName + " fully repaired.");
-                DecreaseCondition(bonus * 25 / owner.GetAttribute("Mechanical").value);
+                    owner.world.UpdateLog(item.GetComponent<Item>().displayName + " fully repaired.");
+                DecreaseCondition(bonus * 25 / owner.GetAttribute("Mechanical").Value);
                 //owner.waitingTurns = 0;
             }
             return true;
         }
         else if (owner.IsPlayer()) 
-            owner.game.UpdateLog(item.GetComponent<Item>().displayName + " does not need repair.");
+            owner.world.UpdateLog(item.GetComponent<Item>().displayName + " does not need repair.");
         return false;
     }
 }

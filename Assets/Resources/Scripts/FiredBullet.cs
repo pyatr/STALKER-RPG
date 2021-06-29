@@ -8,14 +8,12 @@ public class FiredBullet : MonoBehaviour
     public GameObject shooter;
     public float maxDistance;
     public Vector2 startPoint;
+    public Vector2 targetPoint;
     public BulletDamage bulletDamage = null;
-    public Game game = null;
-    //public bool startedFromCameraView = true;
-    //public bool cameIntoCameraView = false;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (game.shootableLayers.Contains(collision.collider.gameObject.layer))
+        if (Game.Instance.shootableLayers.Contains(collision.collider.gameObject.layer))
             CollideWithObject(collision.gameObject);
     }
 
@@ -43,18 +41,16 @@ public class FiredBullet : MonoBehaviour
 
     void FixedUpdate()
     {
-        float distance = game.DistanceFromToInCells(startPoint, transform.position);
-        //if (!Game.PointIsOnScreen(transform.position) && startedFromCameraView && !cameIntoCameraView)
-        //{
-        //    RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(transform.position, transform.up, maxDistance - distance);
-        //    Debug.DrawRay(transform.position, transform.up * (maxDistance - distance), Color.red, 10);
-        //    for (int i = 0; i < raycastHit2D.Length; i++)            
-        //        if (game.shootableLayers.Contains(raycastHit2D[i].collider.gameObject.layer) && raycastHit2D[i].collider.gameObject != gameObject)
-        //            CollideWithObject(raycastHit2D[i].collider.gameObject);            
-        //    DestorySelf();
-        //}
-        //else if (!startedFromCameraView)
-        //    cameIntoCameraView = true;
+        float distance = Game.Instance.DistanceFromToInCells(startPoint, transform.position);
+        if (!Game.Instance.PointIsOnScreen(transform.position) && !Game.Instance.PointIsOnScreen(targetPoint))
+        {
+            RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(transform.position, transform.up, maxDistance - distance);
+            //Debug.DrawRay(transform.position, transform.up * (maxDistance - distance), Color.blue, 10);
+            for (int i = 0; i < raycastHit2D.Length; i++)
+                if (Game.Instance.shootableLayers.Contains(raycastHit2D[i].collider.gameObject.layer) && raycastHit2D[i].collider.gameObject != gameObject && raycastHit2D[i].collider.gameObject != shooter)
+                    CollideWithObject(raycastHit2D[i].collider.gameObject);
+            DestorySelf();
+        }
         if (distance >= maxDistance)
             DestorySelf();
     }

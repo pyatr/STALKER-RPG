@@ -6,23 +6,29 @@ using UnityEngine.UI;
 
 public class CharacterController : MonoBehaviour
 {
-    public Game game;
-
     private GameObject _controlledCharacter = null;
     public GameObject ControlledCharacter { get { return _controlledCharacter; } }
-    //private GameObject crosshair = null;
 
-    void Start()
+    private World world;
+    public string dialogueName = "none";
+    public Character talkingTo = null;
+    public int temporaryLockTime = 0;
+
+    private void Start()
     {
-        game = GetComponent<Game>();
+        world = World.GetInstance();
     }
 
     public void SetCharacterControl(GameObject character)
     {
+        world = World.GetInstance();
+        if (character == null)
+            return;
         if (_controlledCharacter != null)
             _controlledCharacter.GetComponent<AI>().enabled = true;
         _controlledCharacter = character;
         character.GetComponent<AI>().enabled = false;
+        world.groundCursor.gameObject.SetActive(true);
         Camera.main.GetComponent<FocusOnGameObject>().ChangeFocusObject(ControlledCharacter);
     }
 
@@ -43,7 +49,7 @@ public class CharacterController : MonoBehaviour
         if (turnNumber > 0)
         {
             ControlledCharacter.GetComponent<Character>().waitingTurns = turnNumber;
-            game.GiveTurnToNextCharacter(ControlledCharacter.GetComponent<Character>());
+            world.GiveTurnToNextCharacter(ControlledCharacter.GetComponent<Character>());
         }
     }
 
@@ -51,22 +57,27 @@ public class CharacterController : MonoBehaviour
     {
         if (Input.GetKeyUp(KeyCode.Escape))
         {
-            if (game.CurrentUiMode == InGameUI.Menu)
-                game.SwitchUIMode(InGameUI.Interface);
-            else if (game.CurrentUiMode == InGameUI.Interface)
-                game.SwitchUIMode(InGameUI.Menu);
+            if (world.CurrentUiMode == InGameUI.Menu)
+                world.SwitchUIMode(InGameUI.Interface);
+            else if (world.CurrentUiMode == InGameUI.Interface)
+                world.SwitchUIMode(InGameUI.Menu);
             return;
         }
         if (Input.GetKeyUp(KeyCode.BackQuote))
         {
-            if (game.CurrentUiMode == InGameUI.Console)
-                game.SwitchUIMode(InGameUI.Interface);
-            else if (game.CurrentUiMode == InGameUI.Interface)
-                game.SwitchUIMode(InGameUI.Console);
+            if (world.CurrentUiMode == InGameUI.Console)
+                world.SwitchUIMode(InGameUI.Interface);
+            else if (world.CurrentUiMode == InGameUI.Interface)
+                world.SwitchUIMode(InGameUI.Console);
             return;
         }
         if (ControlledCharacter == null)
             return;
+        if (temporaryLockTime > 0)
+        {
+            temporaryLockTime--;
+            return;
+        }
         Character characterComponent = ControlledCharacter.GetComponent<Character>();
         if (!characterComponent)
             return;
@@ -75,7 +86,7 @@ public class CharacterController : MonoBehaviour
         if ((Input.GetKeyUp(KeyCode.LeftControl) || characterComponent.IsInCombat()) && characterComponent.waitingTurns > 0)
         {
             characterComponent.waitingTurns = 0;
-            game.UpdateLog("Stopped waiting.");
+            world.UpdateLog("Stopped waiting.");
             return;
         }
         bool inCombat = characterComponent.IsInCombat();
@@ -90,102 +101,187 @@ public class CharacterController : MonoBehaviour
         //else
         //    characterComponent.usingKit = false;
         characterComponent.CalculateEncumbrance();
-        if (Input.GetKeyUp(KeyCode.Tab) && game.CurrentUiMode == InGameUI.Inventory)
+        if (Input.GetKeyUp(KeyCode.Tab) && world.CurrentUiMode == InGameUI.Inventory)
         {
-            game.SwitchUIMode(InGameUI.Interface);
+            world.SwitchUIMode(InGameUI.Interface);
             return;
         }
-        if (game.CurrentUiMode == InGameUI.Interface)
+        if (Input.GetKeyUp(KeyCode.C) && world.CurrentUiMode == InGameUI.CharacterMenu)
+        {
+            world.SwitchUIMode(InGameUI.Interface);
+            return;
+        }
+        if (world.CurrentUiMode == InGameUI.Dialogue)
+        {
+            Dialogue dialogueMenu = world.userInterfaceElements[InGameUI.Dialogue].GetComponent<Dialogue>();
+            if (dialogueMenu && world.userInterfaceElements[InGameUI.Dialogue].activeSelf)
+            {
+                Dialogue.DialoguePage dialoguePage = dialogueMenu.currentPage;
+                if (dialoguePage != null && dialoguePage.responses != null)
+                    for (int i = 0; i < dialoguePage.responses.Count && i < 9; i++)
+                        if (Input.GetKeyUp((KeyCode)(i + 49)))
+                            dialogueMenu.ChooseResponseNumber(i); //(dialoguePage.responses[i]);
+            }
+            return;
+        }
+        if (world.CurrentUiMode == InGameUI.Interface)
         {
             Cursor.visible = false;
             if (Input.GetKeyUp(KeyCode.F2))
             {
-                game.gameInterfaceObject.SetActive(!game.gameInterfaceObject.activeSelf);
-                game.groundCursor.gameObject.SetActive(game.gameInterfaceObject.activeSelf);
+                world.userInterfaceElements[InGameUI.Interface].SetActive(!world.userInterfaceElements[InGameUI.Interface].activeSelf);
+                world.groundCursor.gameObject.SetActive(world.userInterfaceElements[InGameUI.Interface].activeSelf);
                 return;
             }
             if (Input.GetKeyUp(KeyCode.Tab))
             {
-                game.SwitchUIMode(InGameUI.Inventory);
+                world.SwitchUIMode(InGameUI.Inventory);
+                characterComponent.StopMovingOnPath();
+                return;
+            }
+            if (Input.GetKeyUp(KeyCode.C))
+            {
+                world.SwitchUIMode(InGameUI.CharacterMenu);
                 return;
             }
             if (Input.GetKeyUp(KeyCode.Space))
             {
-                game.UpdateLog("Finished turn");
+                world.UpdateLog("Finished turn");
                 characterComponent.EndTurn();
-                //game.GiveTurnToNextCharacter(characterComponent);
-                //return;
+                //world.GiveTurnToNextCharacter(characterComponent);
+                return;
             }
             if (Input.GetKeyUp(KeyCode.B))
             {
                 if (firearmComponent)
                     firearmComponent.SwitchFireMod();
+                return;
             }
             if (Input.GetKeyUp(KeyCode.R))
+            {
                 characterComponent.ReloadWeapon();
+                return;
+            }
             if (Input.GetKeyUp(KeyCode.E))
             {
-                if (firearmComponent)
+                if (equippedItem != null)
                 {
-                    if (firearmComponent.jammed)
+                    if (firearmComponent)
                     {
-                        if (characterComponent.UseActionPoints(2))
+                        if (firearmComponent.jammed)
                         {
-                            float condition = firearmComponent.Condition / firearmComponent.GetComponent<Item>().GetMaxCondition() * 25;
-                            float unjamChance = characterComponent.GetAttribute("Mechanical").value;
-                            if (UnityEngine.Random.Range(condition - firearmComponent.reliability, condition) < unjamChance)
+                            if (characterComponent.UseActionPoints(2))
                             {
-                                firearmComponent.jammed = false;
-                                game.UpdateLog("Your gun is no longer jammed.");
+                                float condition = firearmComponent.Condition / firearmComponent.GetComponent<Item>().GetMaxCondition() * 25;
+                                float unjamChance = characterComponent.GetAttribute("Mechanical").Value;
+                                if (UnityEngine.Random.Range(condition - firearmComponent.reliability, condition) < unjamChance)
+                                {
+                                    firearmComponent.jammed = false;
+                                    world.UpdateLog("Your gun is no longer jammed.");
+                                }
+                                else
+                                    world.UpdateLog("Your fail to unjam your gun.");
                             }
                             else
-                                game.UpdateLog("Your fail to unjam your gun.");
+                                world.UpdateLog("Not enough AP to unjam the gun (2).");
                         }
                         else
-                            game.UpdateLog("Not enough AP to unjam the gun (2).");
+                            world.UpdateLog("Your gun doesn't need to be unjammed.");
                     }
-                    else
-                        game.UpdateLog("Your gun doesn't need to be unjammed.");
-                }
-                Repairkit repairkit = equippedItem.GetComponent<Repairkit>();
-                if (repairkit)
-                {
-                    //if (characterComponent.UseActionPoints(4))
-                    //{
-                    //characterComponent.usingKit = true;
-                    if (!inCombat)
-                        repairkit.OnUse(inCombat);
-                    else
-                        game.UpdateLog("Can not use repair kits in combat");
-                    //}
-                    //else
-                    //    game.UpdateLog("Not enough AP to use repair kit (4).");
-                }
-                Medkit medkit = equippedItem.GetComponent<Medkit>();
-                if (medkit)
-                {
-                    if (characterComponent.UseActionPoints(4))
+                    Repairkit repairkit = equippedItem.GetComponent<Repairkit>();
+                    if (repairkit)
                     {
+                        //if (characterComponent.UseActionPoints(4))
+                        //{
                         //characterComponent.usingKit = true;
-                        medkit.OnUse(inCombat);
+                        if (!inCombat)
+                            repairkit.OnUse(inCombat);
+                        else
+                            world.UpdateLog("Can not use repair kits in combat");
+                        //}
+                        //else
+                        //    world.UpdateLog("Not enough AP to use repair kit (4).");
                     }
-                    else
-                        game.UpdateLog("Not enough AP to use medkit (4).");
+                    Medkit medkit = equippedItem.GetComponent<Medkit>();
+                    if (medkit)
+                    {
+                        if (characterComponent.UseActionPoints(4))
+                        {
+                            //characterComponent.usingKit = true;
+                            medkit.OnUse(inCombat);
+                        }
+                        else
+                            world.UpdateLog("Not enough action points to use medkit (4).");
+                    }
                 }
             }
             if (Input.GetKeyUp(KeyCode.Q))
-                game.UpdateLog(game.DistanceFromToInCells(characterComponent.transform.position, game.groundCursor.position).ToString() + " cells");
+                world.UpdateLog(Game.Instance.DistanceFromToInCells(characterComponent.transform.position, world.groundCursor.position).ToString() + " cells");
             if (Input.GetKeyUp(KeyCode.Keypad0) && !inCombat)
                 TryWait(10);
             if (Input.GetKeyUp(KeyCode.KeypadPeriod) && !inCombat)
                 TryWait(20);
             if (Input.GetKeyUp(KeyCode.KeypadEnter) && !inCombat)
                 TryWait(50);
+            if (Input.GetKeyUp(KeyCode.F5))
+                world.GetComponent<Save>().SaveGame(world.currentSlot);
+            if (Input.GetKeyUp(KeyCode.D))
+            {
+                GameObject weaponOnBack = characterComponent.GetItemFromBuiltinSlot(BuiltinCharacterSlots.Backweapon);
+                if (weaponOnBack != null)
+                {
+                    int APtoMove = Mathf.Max(weaponOnBack.GetComponent<Item>().actionPointsToMove - 2, 1);
+                    if (inCombat && !characterComponent.CanUseActionPoints(APtoMove))
+                        return;
+                    if (equippedItem == null && weaponOnBack != null && characterComponent.UseActionPoints(APtoMove))
+                        characterComponent.EquipItemAsWeapon(weaponOnBack);
+                }
+                else
+                {
+                    if (equippedItem != null)
+                        characterComponent.EquipWeaponOnBack(equippedItem);
+                    else
+                        world.UpdateLog("No weapon to put on back or equip.");
+                }
+                return;
+            }
             Cursor.visible = false;
-            if (game.GroundCursorMode == GroundCursorMode.Move)
+            if (equippedItem == null)
+                world.GroundCursorMode = GroundCursorMode.Move;
+            if (world.GroundCursorMode == GroundCursorMode.Move)
             {
                 if (Input.GetMouseButtonUp(0))
-                    characterComponent.MoveOnPathTo(game.groundCursor.position);
+                {
+                    Vector2 cursorPosition = world.groundCursor.position;
+                    if (!inCombat)
+                    {
+                        Vector2 playerPosition = ControlledCharacter.transform.position;
+                        foreach (Character targetCharacter in world.activeCharacters)
+                        {
+                            if (targetCharacter != characterComponent && !targetCharacter.hostileTowards.Contains(characterComponent.faction))
+                            {
+                                Vector2 targetCharacterPosition = targetCharacter.transform.position;
+                                int xDistanceToCell = (int)Math.Round((targetCharacterPosition.x - playerPosition.x) / Game.Instance.cellSize.x, MidpointRounding.AwayFromZero);
+                                int yDistanceToCell = (int)Math.Round((targetCharacterPosition.y - playerPosition.y) / Game.Instance.cellSize.y, MidpointRounding.AwayFromZero);
+                                if (xDistanceToCell <= 1 && xDistanceToCell >= -1 && yDistanceToCell <= 1 && yDistanceToCell >= -1)
+                                {
+                                    Direction cellDirection = characterComponent.pathFinder.NumbersToDirection(new Vector2(xDistanceToCell, yDistanceToCell));
+                                    if (Game.Instance.VectorsAreEqual(targetCharacterPosition, cursorPosition) && characterComponent.CanReachCharacterInDirection(cellDirection))
+                                    {
+                                        if (targetCharacter.dialoguePackageName != "none")
+                                        {
+                                            talkingTo = targetCharacter;
+                                            dialogueName = targetCharacter.dialoguePackageName;
+                                            world.SwitchUIMode(InGameUI.Dialogue);
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    characterComponent.MoveOnPathTo(cursorPosition);
+                }
                 //Direction direction;
                 //if (Input.GetKey(KeyCode.LeftControl))
                 //    direction = GetDirectionFromNumPad(false);
@@ -194,36 +290,45 @@ public class CharacterController : MonoBehaviour
                 //if (Input.GetKey(KeyCode.LeftAlt))
                 //    if (Input.GetKey(KeyCode.Keypad5))
                 //        Camera.main.GetComponent<FocusOnGameObject>().ResetOffset();
-                //    else if (Game.PointIsOnScreen((Vector2)controlledCharacter.transform.position - game.cellSize * characterComponent.DirectionToNumbers(direction)))
+                //    else if (world.PointIsOnScreen((Vector2)controlledCharacter.transform.position - Game.Instance.cellSize * characterComponent.DirectionToNumbers(direction)))
                 //        Camera.main.GetComponent<FocusOnGameObject>().ModOffset(characterComponent.DirectionToNumbers(direction) / 4);
                 //if (direction != Direction.C)
                 //    characterComponent.TryMove(direction);
                 if (Input.GetMouseButtonUp(1) && !Input.GetKey(KeyCode.LeftAlt))
                 {
+                    MeleeWeapon meleeWeaponComponent = equippedItem?.GetComponent<MeleeWeapon>();
+                    if (meleeWeaponComponent)
+                    {
+                        world.GroundCursorMode = GroundCursorMode.MeleeAttack;
+                        world.observedTarget = null;
+                        return;
+                    }
                     if (firearmComponent)
                     {
                         if (!firearmComponent.jammed)
                         {
-                            game.observedTarget = null;
-                            game.GroundCursorMode = GroundCursorMode.Attack;
+                            world.observedTarget = null;
+                            world.GroundCursorMode = GroundCursorMode.Attack;
                         }
                         else
-                            game.UpdateLog("Your gun is jammed!");
+                        {
+                            world.UpdateLog("Your gun is jammed!");
+                        }
                     }
                 }
                 return;
             }
-            if (game.GroundCursorMode == GroundCursorMode.Attack)
+            if (world.GroundCursorMode == GroundCursorMode.Attack)
             {
-                game.observedTarget = null;
-                Vector2Int cursorTilePosition = game.ObjectPositionToCell(game.groundCursor);
-                foreach (Character character in game.activeCharacters)
+                world.observedTarget = null;
+                Vector2Int cursorTilePosition = Game.Instance.ObjectPositionToCell(world.groundCursor);
+                foreach (Character character in world.activeCharacters)
                 {
                     if (character.gameObject != ControlledCharacter)
                     {
-                        if (cursorTilePosition == game.ObjectPositionToCell(character.transform))
+                        if (cursorTilePosition == Game.Instance.ObjectPositionToCell(character.transform))
                         {
-                            game.observedTarget = character;
+                            world.observedTarget = character;
                             break;
                         }
                     }
@@ -231,9 +336,44 @@ public class CharacterController : MonoBehaviour
                 if (characterComponent.performingAction)
                     return;
                 if (Input.GetMouseButtonUp(1))
-                    game.GroundCursorMode = GroundCursorMode.Move;
+                    world.GroundCursorMode = GroundCursorMode.Move;
                 if (Input.GetMouseButtonUp(0))
-                    characterComponent.ShootAtPoint(game.groundCursor.position);
+                    characterComponent.ShootAtPoint(world.groundCursor.position);
+            }
+            if (world.GroundCursorMode == GroundCursorMode.MeleeAttack)
+            {
+                world.observedTarget = null;
+                Vector2Int cursorTilePosition = Game.Instance.ObjectPositionToCell(world.groundCursor);
+                foreach (Character character in world.activeCharacters)
+                {
+                    if (character.gameObject != ControlledCharacter)
+                    {
+                        if (cursorTilePosition == Game.Instance.ObjectPositionToCell(character.transform))
+                        {
+                            world.observedTarget = character;
+                            break;
+                        }
+                    }
+                }
+                if (characterComponent.performingAction)
+                    return;
+                if (Input.GetMouseButtonUp(1))
+                    world.GroundCursorMode = GroundCursorMode.Move;
+                if (Input.GetMouseButtonUp(0))
+                {
+                    Vector2 cursorPosition = Game.Instance.ObjectPositionToCell(world.groundCursor);
+                    int xDistanceToCell = (int)Math.Round((cursorPosition.x - transform.position.x) / Game.Instance.cellSize.x, MidpointRounding.AwayFromZero);
+                    int yDistanceToCell = (int)Math.Round((cursorPosition.y - transform.position.y) / Game.Instance.cellSize.y, MidpointRounding.AwayFromZero);
+                    if (xDistanceToCell <= 1 && xDistanceToCell >= -1 && yDistanceToCell <= 1 && yDistanceToCell >= -1)
+                    {
+                        Direction cellDirection = characterComponent.pathFinder.NumbersToDirection(new Vector2(xDistanceToCell, yDistanceToCell));
+                        if (Game.Instance.VectorsAreEqual(cursorPosition, cursorPosition) && characterComponent.CanReachCharacterInDirection(cellDirection))
+                        {
+                            characterComponent.MeleeAttackInDirection(cellDirection);
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

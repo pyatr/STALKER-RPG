@@ -53,6 +53,11 @@ public class Firearm : MonoBehaviour
                 return true;
         return false;
     }
+
+    public float GetConditionPercentage01()
+    {
+        return Condition / GetComponent<Item>().GetMaxCondition();
+    }
     
     public FireMode SwitchFireMod()
     {
@@ -82,9 +87,16 @@ public class Firearm : MonoBehaviour
 
     public GameObject UnloadMagazine()
     {
-        GameObject unloadedMagazine = magazine;
-        magazine = null;
-        return unloadedMagazine;
+        if (magazine != null)
+        {
+            if (!magazine.GetComponent<Magazine>().builtin)
+            {
+                GameObject unloadedMagazine = magazine;
+                magazine = null;
+                return unloadedMagazine;
+            }
+        }
+        return null;
     }
 
     public bool SpendAmmo()
@@ -128,9 +140,14 @@ public class Firearm : MonoBehaviour
         {
             if (magazine.GetComponent<Magazine>().category == magazineType)
             {
-                Character owner = GetComponent<Item>()?.GetOwner()?.GetComponent<Character>();
+                Character owner = GetComponent<Item>()?.GetOwner();
                 if (owner != null)
-                    owner.PlaySound(Resources.Load<AudioClip>("Sounds/rifle_reload"));
+                {
+                    if(!magazine.GetComponent<Magazine>().builtin)
+                        owner.PlaySound(Resources.Load<AudioClip>("Sounds/rifle_reload"));
+                    else
+                        owner.PlaySound(Resources.Load<AudioClip>("Sounds/reload_boltaction"));
+                }
                 magazine.transform.parent = transform;
                 this.magazine = magazine;
                 return true;

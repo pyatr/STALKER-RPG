@@ -12,8 +12,8 @@ public class Kit : MonoBehaviour
         Attribute.ChangeResult result = Condition.Modify(-amount);
         if (result == Attribute.ChangeResult.BelowMin)
         {
-            if (ItemComponent.game.characterController.ControlledCharacter == ItemComponent.GetOwner())
-                ItemComponent.game.UpdateLog(ItemComponent.displayName + " used up.");
+            if (ItemComponent.world.characterController.ControlledCharacter == ItemComponent.GetOwner().gameObject)
+                ItemComponent.world.UpdateLog(ItemComponent.displayName + " used up.");
             Destroy(gameObject);
             //ItemComponent.GetOwner().GetComponent<Character>().usingKit = false;
             //ItemComponent.GetOwner().GetComponent<Character>().waitingTurns = 0;

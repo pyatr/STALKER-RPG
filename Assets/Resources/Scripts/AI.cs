@@ -6,30 +6,35 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
-    public Character characterComponent;
-    public PathFinder pathFinder;
-    public Game game;
-    public Dictionary<string, int> factionsToForgive = new Dictionary<string, int>();
-    public Transform occupationTarget = null;
-
-    Character AttackTarget { get { return characterComponent.attackTarget; } set { characterComponent.attackTarget = value; } }
-
-    public int turnsSinceLastAttack = 0;
-    public int turnsToWaitAfterAttack = 14;
     private int thoughts = 0;
     private int maxThoughts = 8;
 
+    public Character AttackTarget { get { return characterComponent.attackTarget; } set { characterComponent.attackTarget = value; } }
+
+    public World world;
+    public Character characterComponent;
+    public PathFinder pathFinder;
+    public Dictionary<string, int> factionsToForgive = new Dictionary<string, int>();
+    public Dictionary<string, int> temporaryPeace = new Dictionary<string, int>();
+    public Transform occupationTarget = null;
+
+    public int turnsSinceLastAttack = 0;
+    public int turnsToWaitAfterAttack = 14;
+    public bool followPlayer = false;
+
     public void FindTargetToAttack(bool hasToBeShootable = false)
     {
-        foreach (Character currentCharacter in game.activeCharacters)
+        foreach (Character currentCharacter in world.activeCharacters)
         {
             if (characterComponent.hostileTowards.Contains(currentCharacter.faction))
             {
+                if (currentCharacter.immobile && currentCharacter.invulnerable)
+                    continue;
                 float distanceX = transform.position.x - currentCharacter.transform.position.x;
-                if (Math.Abs(distanceX) > characterComponent.sightDistance * game.cellSize.x)
+                if (Math.Abs(distanceX) > characterComponent.sightDistance * Game.Instance.cellSize.x)
                     continue;
                 float distanceY = transform.position.y - currentCharacter.transform.position.y;
-                if (Math.Abs(distanceY) > characterComponent.sightDistance * game.cellSize.y)
+                if (Math.Abs(distanceY) > characterComponent.sightDistance * Game.Instance.cellSize.y)
                     continue;
                 if (hasToBeShootable)
                     if (!CanShoot(currentCharacter))
@@ -38,8 +43,8 @@ public class AI : MonoBehaviour
                 {
                     characterComponent.StopMovingOnPath();
                     currentCharacter.StopMovingOnPath();
-                    if (currentCharacter.gameObject == game.characterController.ControlledCharacter)
-                        game.UpdateLog(characterComponent.displayName + " attacks you!");
+                    if (currentCharacter.gameObject == world.characterController.ControlledCharacter)
+                        world.UpdateLog(characterComponent.displayName + " attacks you!");
                 }
                 currentCharacter.waitingTurns = 0;
                 CallForHelp(currentCharacter);
@@ -52,7 +57,7 @@ public class AI : MonoBehaviour
     public void CallForHelp(Character attackedBy)
     {
         occupationTarget = null;
-        foreach (Character possibleAlly in game.activeCharacters)
+        foreach (Character possibleAlly in world.activeCharacters)
         {
             if (possibleAlly.attackTarget == null && attackedBy.faction != characterComponent.faction)
             {
@@ -60,7 +65,7 @@ public class AI : MonoBehaviour
                 {
                     if (characterComponent.attackTarget == null)
                         characterComponent.attackTarget = attackedBy;
-                    if (game.DistanceFromToInCells(transform.position, possibleAlly.transform.position) < 30)
+                    if (Game.Instance.DistanceFromToInCells(transform.position, possibleAlly.transform.position) < 30)
                     {
                         possibleAlly.attackTarget = attackedBy;
                         if (attackedBy.faction == "playerfaction")
@@ -76,16 +81,18 @@ public class AI : MonoBehaviour
 
     public bool ShootSomeoneImmediately()
     {
-        foreach (Character targetCharacterComponent in game.activeCharacters)
+        foreach (Character targetCharacterComponent in world.activeCharacters)
         {
             if (characterComponent.hostileTowards.Contains(targetCharacterComponent.faction))
             {
                 //float distanceX = transform.position.x - targetCharacterComponent.transform.position.x;
-                //if (Math.Abs(distanceX) > characterComponent.sightDistance * game.cellSize.x)
+                //if (Math.Abs(distanceX) > characterComponent.sightDistance * Game.Instance.cellSize.x)
                 //    continue;
                 //float distanceY = transform.position.y - targetCharacterComponent.transform.position.y;
-                //if (Math.Abs(distanceY) > characterComponent.sightDistance * game.cellSize.y)
+                //if (Math.Abs(distanceY) > characterComponent.sightDistance * Game.Instance.cellSize.y)
                 //    continue;
+                if (targetCharacterComponent.immobile && targetCharacterComponent.invulnerable)                
+                    continue;                
                 if (!TargetWithinAttackRange(targetCharacterComponent))
                     continue;
                 if (!CanShoot(targetCharacterComponent))
@@ -94,8 +101,8 @@ public class AI : MonoBehaviour
                 {
                     characterComponent.StopMovingOnPath();
                     targetCharacterComponent.StopMovingOnPath();
-                    if (targetCharacterComponent.gameObject == game.characterController.ControlledCharacter)
-                        game.UpdateLog(characterComponent.displayName + " attacks you!");
+                    if (targetCharacterComponent.gameObject == world.characterController.ControlledCharacter)
+                        world.UpdateLog(characterComponent.displayName + " attacks you!");
                 }
                 targetCharacterComponent.waitingTurns = 0;
                 AttackTarget = targetCharacterComponent;
@@ -106,12 +113,21 @@ public class AI : MonoBehaviour
         return false;
     }
 
-    public void MakeHostileTemporarily(Character character, string faction)
+    public void MakeHostileTemporarily(Character character, string faction, int turns = 300)
     {
         if (!character.hostileTowards.Contains(faction) && !character.brain.factionsToForgive.Keys.Contains(faction))
         {
             character.hostileTowards.Add(faction);
-            character.brain.factionsToForgive.Add(faction, 200);
+            character.brain.factionsToForgive.Add(faction, turns);
+        }
+    }
+
+    public void MakeNeutralTemporarily(Character character, string faction, int turns = 200)
+    {
+        if (character.hostileTowards.Contains(faction) && !character.brain.temporaryPeace.Keys.Contains(faction))
+        {
+            character.hostileTowards.Remove(faction);
+            character.brain.temporaryPeace.Add(faction, turns);
         }
     }
 
@@ -130,8 +146,16 @@ public class AI : MonoBehaviour
         {
             //if (!characterComponent.hostileTowards.Contains(character.faction))
             //    return false;
+            if (character.immobile && character.invulnerable)
+            {
+                if (AttackTarget == character)
+                {
+                    AttackTarget = null;
+                    return false;
+                }
+            }
             turnsSinceLastAttack = 0;
-            GameObject equippedItem = characterComponent.weapon;
+            GameObject equippedItem = characterComponent.Weapon;
             if (equippedItem != null)
             {
                 Firearm equippedFirearm = equippedItem.GetComponent<Firearm>();
@@ -163,14 +187,14 @@ public class AI : MonoBehaviour
 
     public void Wander()
     {
-        characterComponent.MoveOnPathTo((Vector2)transform.position + Vector2.up * UnityEngine.Random.Range(-8, 9) * game.cellSize.y + Vector2.right * UnityEngine.Random.Range(-8, 9) * game.cellSize.x);
+        characterComponent.MoveOnPathTo((Vector2)transform.position + Vector2.up * UnityEngine.Random.Range(-8, 9) * Game.Instance.cellSize.y + Vector2.right * UnityEngine.Random.Range(-8, 9) * Game.Instance.cellSize.x);
     }
 
     public void AbandonAttackTargetIfLowOnHealth()
     {
-        if (characterComponent.Health < characterComponent.GetAttribute("Health").maxValue / 3)
+        if (characterComponent.Health < characterComponent.GetAttribute("Health").MaxValue / 3)
         {
-            if (game.DistanceFromToInCells(transform.position, AttackTarget.transform.position) > characterComponent.sightDistance)
+            if (Game.Instance.DistanceFromToInCells(transform.position, AttackTarget.transform.position) > characterComponent.sightDistance)
             {
                 TravelToChosenLocation();
                 return;
@@ -214,11 +238,21 @@ public class AI : MonoBehaviour
             if (characterComponent.EnoughActionPointsToPerformAction(ActionTypes.Move))
             {
                 List<Vector2> adjacentCells = AttackTarget.GetNearbyAccessibleCells();
-                List<Direction> shortestPath = characterComponent.GetShortestPath(adjacentCells);
-                if (shortestPath.Count > 0)
+                Location currentLocation = characterComponent.GetCurrentLocation();
+                Location targetLocation = AttackTarget.GetCurrentLocation();
+                if (currentLocation == targetLocation || currentLocation == null && targetLocation == null) 
                 {
-                    characterComponent.MoveOnPath(shortestPath);
-                    return;
+                    List<Direction> shortestPath = characterComponent.GetShortestPath(adjacentCells);
+                    if (shortestPath.Count > 0)
+                    {
+                        characterComponent.MoveOnPath(shortestPath);
+                        return;
+                    }
+                }
+                else if (!CanShoot(AttackTarget) || Game.Instance.DistanceFromToInCells(transform.position, AttackTarget.transform.position) > characterComponent.sightDistance)
+                {
+                    //Debug.Log(AttackTarget.displayName + " is too far, forget him");
+                    AttackTarget = null;
                 }
             }
         }
@@ -227,13 +261,14 @@ public class AI : MonoBehaviour
 
     public bool TargetWithinAttackRange(Character target)
     {
-        return game.DistanceFromToInCells(transform.position, target.transform.position) <= characterComponent.GetAttackDistance();//Mathf.Min(characterComponent.GetAttackDistance(), characterComponent.sightDistance);
+        return Game.Instance.DistanceFromToInCells(transform.position, target.transform.position) <= characterComponent.GetAttackDistance();//Mathf.Min(characterComponent.GetAttackDistance(), characterComponent.sightDistance);
     }
 
     public void AbandonOccupationPoint()
     {
         if (occupationTarget != null)
         {
+            occupationTarget = null;
             Location currentLocation = characterComponent.GetCurrentLocation();
             if (currentLocation != null)
                 currentLocation.FreePoint(occupationTarget);
@@ -242,7 +277,7 @@ public class AI : MonoBehaviour
 
     public Character IsInImmediateDanger()
     {
-        foreach (Character possibleAttacker in game.activeCharacters)
+        foreach (Character possibleAttacker in world.activeCharacters)
             if (possibleAttacker.hostileTowards.Contains(characterComponent.faction) || possibleAttacker.attackTarget == characterComponent && possibleAttacker.CanShootFromTo(possibleAttacker.transform.position, transform.position))
                 return possibleAttacker;
         return null;
@@ -251,7 +286,7 @@ public class AI : MonoBehaviour
     public bool StandingOnOccupationPoint()
     {
         if (occupationTarget != null)
-            return game.VectorsAreEqual(transform.position, occupationTarget.position);
+            return Game.Instance.VectorsAreEqual(transform.position, occupationTarget.position);
         return false;
     }
 
@@ -273,15 +308,18 @@ public class AI : MonoBehaviour
                 FindTargetToAttack();
             if (AttackTarget == null)
             {
-                if (occupationTarget != null && characterComponent.EnoughActionPointsToPerformAction(ActionTypes.Move))
+                if (!characterComponent.immobile)
                 {
-                    if (!StandingOnOccupationPoint())
+                    if (occupationTarget != null && characterComponent.EnoughActionPointsToPerformAction(ActionTypes.Move))
                     {
-                        List<Direction> pathToPoint = pathFinder.FindPath(occupationTarget.transform.position);
-                        if (pathToPoint.Count > 0)
+                        if (!StandingOnOccupationPoint())
                         {
-                            characterComponent.MoveOnPath(pathToPoint);
-                            return;
+                            List<Direction> pathToPoint = pathFinder.FindPath(occupationTarget.transform.position);
+                            if (pathToPoint.Count > 0)
+                            {
+                                characterComponent.MoveOnPath(pathToPoint);
+                                return;
+                            }
                         }
                     }
                 }
@@ -308,7 +346,7 @@ public class AI : MonoBehaviour
         }
         if (AttackTarget != null)
         {
-            if (game.DistanceFromToInCells(transform.position, AttackTarget.transform.position) > characterComponent.sightDistance)
+            if (Game.Instance.DistanceFromToInCells(transform.position, AttackTarget.transform.position) > characterComponent.sightDistance)
             {
                 AttackTarget = null;
                 characterComponent.EndTurn();
@@ -326,7 +364,8 @@ public class AI : MonoBehaviour
     {
         //Debug.Log(characterComponent.displayName + "");
         //AttackTarget = null;
-        if (characterComponent.IsInCombat())
+        bool inCombat = characterComponent.IsInCombat();
+        if (inCombat)
             turnsSinceLastAttack = 0;
         else
             turnsSinceLastAttack++;
@@ -341,9 +380,41 @@ public class AI : MonoBehaviour
                 i--;
             }
         }
+        for (int i = 0; i < temporaryPeace.Count; i++)
+        {
+            string factionName = temporaryPeace.Keys.ElementAt(i);
+            temporaryPeace[factionName] -= 1;
+            if (temporaryPeace[factionName] <= 0)
+            {
+                characterComponent.hostileTowards.Add(factionName);
+                temporaryPeace.Remove(factionName);
+                i--;
+            }
+        }
+        if (followPlayer && world.Player != null)
+        {
+            characterComponent.MoveOnPathTo(world.Player.GetComponent<Character>().GetNearbyAccessibleCells()[0]);
+            return;
+        }
         if (turnsSinceLastAttack >= turnsToWaitAfterAttack)
-            if (occupationTarget == null)
-                FindPositionToOccupy();
+        {
+            if (!characterComponent.immobile)
+            {
+                Location currentLocation = characterComponent.GetCurrentLocation();
+                if (occupationTarget == null)
+                {
+                    FindPositionToOccupy();
+                }
+                else if (currentLocation != null)
+                {
+                    if (currentLocation.PointIsOccupiedByAnyCharacter(occupationTarget, characterComponent))
+                    {
+                        AbandonOccupationPoint();
+                        FindPositionToOccupy();
+                    }
+                }
+            }
+        }
     }
 
     public void OnMoveStart()
@@ -384,7 +455,7 @@ public class AI : MonoBehaviour
                     //Debug.Log(characterComponent.displayName + " reached destination at " + occupationTarget.position);
                     transform.position = occupationTarget.position;
                     characterComponent.EndTurn();
-                    game.GiveTurnToNextCharacter(characterComponent);
+                    world.GiveTurnToNextCharacter(characterComponent);
                 }
             }
         }

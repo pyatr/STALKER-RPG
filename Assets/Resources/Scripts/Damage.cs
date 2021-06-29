@@ -19,6 +19,7 @@ public enum DamageTypes
 public class Damage
 {
     public float amount;
+    public float modifier = 1f;
     public GameObject source;
 
     public virtual float Amount()
@@ -59,15 +60,17 @@ public class BulletDamage : Damage
         if (objectHit.GetComponent<ObjectAttributes>())
         {
             objectHit.GetComponent<ObjectAttributes>().ModAttribute("Health", -Amount());
-            if (objectHit.GetComponent<Character>())
+            Character characterComponent = objectHit.GetComponent<Character>();
+            if (characterComponent)
             {
-                objectHit.GetComponent<Character>().brain.turnsSinceLastAttack = 0;
+                characterComponent.brain.turnsSinceLastAttack = 0;
                 string sourceName = "";
                 if (source != null)
                     if (source.GetComponent<Character>())
                         sourceName = " from " + source.GetComponent<Character>().displayName;
                 float amount = Mathf.Max(0, Amount());
-                GameObject.Find("World").GetComponent<Game>().UpdateLog(objectHit.GetComponent<Character>().displayName + " takes " + amount + " damage" + sourceName);
+                if (Game.Instance.PointIsOnScreen(characterComponent.transform.position))
+                    characterComponent.world.UpdateLog(objectHit.GetComponent<Character>().displayName + " takes " + amount + " damage" + sourceName);
             }
             base.Apply(objectHit);
         }
@@ -76,7 +79,7 @@ public class BulletDamage : Damage
     public override float Amount()
     {
         if (bulletStats != null)
-            return (bulletStats.damage + gunDamageModifier) * bulletStats.tumble;
+            return (bulletStats.damage + gunDamageModifier) * bulletStats.tumble * modifier;
         else
             return 0f;
     }

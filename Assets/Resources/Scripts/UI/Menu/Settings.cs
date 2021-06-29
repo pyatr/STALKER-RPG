@@ -14,7 +14,7 @@ public class Settings : MonoBehaviour
     {
         soundScrollbar.GetComponent<Scrollbar>().value = PlayerPrefs.GetFloat("SoundVolume");
         musicScrollbar.GetComponent<Scrollbar>().value = PlayerPrefs.GetFloat("MusicVolume");
-        uiScaleScrollbar.GetComponent<Scrollbar>().value = PlayerPrefs.GetFloat("UIScale");
+        uiScaleScrollbar.GetComponent<Scrollbar>().value = PlayerPrefs.GetFloat("UIScale") / 2;
     }
 
     public void SetSoundVolume()
@@ -40,7 +40,7 @@ public class Settings : MonoBehaviour
         float scale = uiScaleScrollbar.GetComponent<Scrollbar>().value;
         uiScaleScrollbar.GetComponent<Scrollbar>().value = (float)Math.Round(scale, 1);
         scale = uiScaleScrollbar.GetComponent<Scrollbar>().value;
-        PlayerPrefs.SetFloat("UIScale", scale);
+        PlayerPrefs.SetFloat("UIScale", scale * 2);
         PlayerPrefs.Save();
     }
 }

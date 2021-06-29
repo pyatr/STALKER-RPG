@@ -1,7 +1,7 @@
 BeltA = 
 {
 	weight = 0.4
-	name = BeltA
+	name = Пояс_А
 	price = 2600
 	sprite = belt_a2
 	equippedon = vest
@@ -28,7 +28,7 @@ BeltA =
 City2 = 
 {
 	weight = 0.9
-	name = City2
+	name = Город_2 
 	price = 3155
 	sprite = city_2	
 	AP_to_move = 12
@@ -54,7 +54,7 @@ City2 =
 Alpha = 
 {
 	weight = 1.3
-	name = Alpha
+	name = Альфа
 	price = 4238
 	sprite = vest_alpha	
 	AP_to_move = 12
@@ -81,7 +81,7 @@ Alpha =
 Partizan = 
 {
 	weight = 1.9
-	name = Partizan
+	name = Партизан
 	price = 6530
 	sprite = partizan	
 	AP_to_move = 12
@@ -109,7 +109,7 @@ Partizan =
 NewbieJacket = 
 {
 	weight = 0.8
-	name = Newbie_jacket
+	name = Куртка_новичка
 	AP_to_move = 12
 	price = 1186
 	sprite = newbie_jacket
@@ -131,7 +131,7 @@ NewbieJacket =
 BanditJacket = 
 {
 	weight = 1.0
-	name = Bandit_jacket
+	name = Куртка_бандита
 	price = 889
 	AP_to_move = 12
 	sprite = bandit_jacket
@@ -152,7 +152,7 @@ BanditJacket =
 zarya = 
 {
 	weight = 5.0
-	name = Zarya_suit
+	name = Комбинезон_Заря
 	price = 15000
 	AP_to_move = 12
 	sprite = zarya
@@ -177,7 +177,7 @@ zarya =
 6b2 = 
 {
 	weight = 4.0
-	name = 6b2_armor_vest
+	name = Бронежилет_6Б2
 	price = 11300
 	AP_to_move = 12
 	sprite = 6B2
@@ -197,30 +197,31 @@ zarya =
 merc_vest = 
 {
 	weight = 5.4
-	name = Mercenary_vest
+	name = Костюм_наемника
 	price = 15900
 	AP_to_move = 12
 	sprite = mercvest
-	equippedon = armor
+	equippedon = vest 
+	#armor
 	item_slots = 
 	{
 		general_large = 2
 	}
-	secondary_slots = 
-	{
-		vest
-	}
-	protection =
-	{
-		fire = 12
-		blunt = 14
-		electricity = 10
-		tear = 15
-		radiation = 12
-		chemical = 9
-		explosion = 14
-		bullet = 15
-	}
+	#secondary_slots = 
+	#{
+	#	vest
+	#}
+	#protection =
+	#{
+	#	fire = 12
+	#	blunt = 14
+	#	electricity = 10
+	#	tear = 15
+	#	radiation = 12
+	#	chemical = 9
+	#	explosion = 14
+	#	bullet = 15
+	#}
 	vest_slot_provider = 
 	{
 		1_1 = small_grenade
@@ -240,7 +241,7 @@ merc_vest =
 chn1 = 
 {
 	weight = 4.0
-	name = CS-1_armor_vest
+	name = Бронежилет_ЧН-1
 	price = 17300
 	AP_to_move = 12
 	sprite = chn1
@@ -249,10 +250,10 @@ chn1 =
 	{
 		general_large = 2
 	}
-	secondary_slots = 
-	{
-		vest
-	}
+	#secondary_slots = 
+	#{
+	#	vest
+	#}
 	protection =
 	{
 		fire = 13
@@ -264,19 +265,19 @@ chn1 =
 		explosion = 12
 		bullet = 13
 	}
-	vest_slot_provider = 
-	{
-		2_1 = AK_mag
-		2_2 = AK_mag
-		2_3 = AK_mag
-		2_4 = AK_mag
-	}
+	#vest_slot_provider = 
+	#{
+	#	2_1 = AK_mag
+	#	2_2 = AK_mag
+	#	2_3 = AK_mag
+	#	2_4 = AK_mag
+	#}
 }
 
 helmet_sphere = 
 {
 	weight = 1.5
-	name = Sphere_M-86
+	name = Сфера_М-86
 	price = 2367
 	AP_to_move = 4
 	sprite = helmet_sphere
@@ -296,7 +297,7 @@ helmet_sphere =
 helmet_vityaz = 
 {
 	weight = 3.5
-	name = Vityaz
+	name = Витязь
 	price = 4541
 	AP_to_move = 4
 	sprite = helmet_vityaz
@@ -321,7 +322,7 @@ helmet_vityaz =
 helmet_ssh68 = 
 {
 	weight = 1.25
-	name = SSh-68
+	name = СШ-68
 	price = 1195
 	AP_to_move = 4
 	sprite = helmet_ssh68
@@ -346,7 +347,7 @@ helmet_ssh68 =
 itembag = 
 {
 	weight = 0.9
-	name = Veschmeshok
+	name = Вещмешок
 	price = 700
 	AP_to_move = 11
 	sprite = itembag
@@ -370,7 +371,7 @@ itembag =
 rd54 =
 {
 	weight = 1.3
-	name = RD54
+	name = РД-54
 	AP_to_move = 11
 	price = 2400
 	sprite = rd54

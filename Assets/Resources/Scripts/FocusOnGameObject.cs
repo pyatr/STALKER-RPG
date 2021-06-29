@@ -2,16 +2,15 @@
 
 public class FocusOnGameObject : MonoBehaviour
 {
-    private float minCameraDistance = 0.5f;
-    private float maxCameraDistance = 7.0f;
-    GameObject focusObject;
-    Vector2 offset = Vector2.zero;
-    Vector2 offsetLimit = new Vector2(8, 6);
-
-    public Game game;
+    private World world;
+    private GameObject focusObject;
+    private Vector2 offset = Vector2.zero;
+    private Vector2 offsetLimit = new Vector2(8, 6);
 
     public GameObject FocusObject { get { return focusObject; } }
     public Vector2 Offset { get { return offset; } }
+    public float minCameraDistance = 0.5f;
+    public float maxCameraDistance = 7.0f;
 
     public void Focus()
     {
@@ -42,39 +41,43 @@ public class FocusOnGameObject : MonoBehaviour
         offset = Vector2.zero;
     }
 
-    void Start()
+    private void Start()
     {
+        world = World.GetInstance();
         Focus();
     }
 
-    void Update()
+    private void Update()
     {
-        if (Input.GetKey(KeyCode.KeypadMinus))
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize + 0.045f, minCameraDistance, maxCameraDistance);
-        if (Input.GetKey(KeyCode.KeypadPlus))
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize - 0.045f, minCameraDistance, maxCameraDistance);
-        if (Input.mouseScrollDelta.y != 0.0f)
-            Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize - Input.mouseScrollDelta.y / 5, minCameraDistance, maxCameraDistance);
-        if (focusObject == null)
-            return;
-        if (Input.GetKey(KeyCode.LeftAlt))
+        if (world.CurrentUiMode == InGameUI.Interface)
         {
-            if (Input.GetMouseButton(1))
-            {
-                ResetOffset();
+            if (Input.GetKey(KeyCode.KeypadMinus))
+                Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize + 0.045f, minCameraDistance, maxCameraDistance);
+            if (Input.GetKey(KeyCode.KeypadPlus))
+                Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize - 0.045f, minCameraDistance, maxCameraDistance);
+            if (Input.mouseScrollDelta.y != 0.0f)
+                Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize - Input.mouseScrollDelta.y / 5, minCameraDistance, maxCameraDistance);
+            if (focusObject == null)
                 return;
+            if (Input.GetKey(KeyCode.LeftAlt))
+            {
+                if (Input.GetMouseButton(1))
+                {
+                    ResetOffset();
+                    return;
+                }
+                Vector2 difference = transform.localPosition - world.groundCursor.localPosition;
+                float directionX = 0;
+                float directionY = 0;
+                if (Mathf.Abs(difference.x) > Game.Instance.cellSize.x)
+                    directionX = (difference.x / Mathf.Abs(difference.x));
+                if (Mathf.Abs(difference.y) > Game.Instance.cellSize.y)
+                    directionY = (difference.y / Mathf.Abs(difference.y));
+                Vector2 direction = new Vector2(directionX, directionY);
+                if (Game.Instance.PointIsOnScreen((Vector2)world.Player.transform.position + Game.Instance.cellSize * direction))
+                    ModOffset(Game.Instance.cellSize * direction * -1 / 16);
             }
-            Vector2 difference = transform.localPosition - game.groundCursor.localPosition;
-            float directionX = 0;
-            float directionY = 0;
-            if (Mathf.Abs(difference.x) > game.cellSize.x)
-                directionX = (difference.x / Mathf.Abs(difference.x));
-            if (Mathf.Abs(difference.y) > game.cellSize.y)
-                directionY = (difference.y / Mathf.Abs(difference.y));
-            Vector2 direction = new Vector2(directionX, directionY);
-            if (game.PointIsOnScreen((Vector2)game.player.transform.position + game.cellSize * direction))
-                ModOffset(game.cellSize * direction * -1 / 16);
+            Focus();
         }
-        Focus();
     }
 }

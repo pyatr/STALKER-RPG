@@ -3,6 +3,7 @@ player =
 	name = Player
 	sprite = {stalker1 stalker2 stalker3 stalker4}
 	faction = playerfaction
+	money = {10350 13800}
 	attributes = 
 	{
 		Level =
@@ -21,54 +22,54 @@ player =
 		}
 		Strength = 
 		{
-			start = 16
+			start = 15
 		}
 		Dexterity = 
 		{
-			start = 16
+			start = 15
 		}
 		Endurance = 
 		{
-			start = 16
+			start = 15
 		}
 		Perception = 
 		{
-			start = 16
+			start = 15
 		}
 		Social = 
 		{
-			start = 16
+			start = 15
 		}
 		Marksmanship = 
 		{
-			start = 21
+			start = 18
 		}
 		Medical = 
 		{
-			start = 16
+			start = 15
 		}
 		Mechanical =
 		{
-			start = 16
+			start = 14
 		}
 	}
 	equipped = 
 	{
 		armor = 6b2
-		vest = Alpha
+		vest = City2
 		weapon = PM
 		backpack = itembag
-		backweapon = AKM
-		#backweapon = TOZ66
+		#backweapon = AKM
+		backweapon = TOZ66
 		#helmet = helmet_ssh68
 	}
 	items =
 	{
-		#helmet_ssh68 = 1
+		#helmet_ssh68 = 1		
 		medkit = 2
 		9x18 = 1
-		#12gauge = 2
-		Alpha = 1
+		#12gauge = 1
+		City2 = 1
 		6b2 = 1
 		itembag = 1
 		weapons = 
@@ -77,10 +78,10 @@ player =
 			{
 				magazine = standart
 			}
-			AKM =
-			{
-				magazine = standart
-			}
+			#AKM =
+			#{
+			#	magazine = standart
+			#}
 			#TOZ66 = 
 			#{
 			#	magazine = standart
@@ -104,26 +105,26 @@ player =
 			{			
 				
 			}
-			RPKmag =
-			{
-				amount = 45
-			}
-			AKmag =
-			{
-				amount = {13 19}
-				type = BP
-			}	
-			AKmag =
-			{
-				amount = {20 25}
-			}	
+			#RPKmag =
+			#{
+			#	amount = 45
+			#}
+			#AKmag =
+			#{
+			#	amount = {13 19}
+			#	type = BP
+			#}	
+			#AKmag =
+			#{
+			#	amount = {20 25}
+			#}	
 		}		
 	}
 }
 
 stalker_newbie =
 {
-	name = Stalker
+	name = Сталкер
 	sprite = {stalker1 stalker2 stalker4}
 	faction = loners
 	attributes = 
@@ -212,7 +213,7 @@ stalker_newbie =
 
 stalker_newbie2 =
 {
-	name = Stalker
+	name = Сталкер
 	sprite = stalker3
 	faction = loners
 	attributes = 
@@ -287,7 +288,7 @@ stalker_newbie2 =
 
 stalker_experienced =
 {
-	name = Stalker
+	name = Сталкер
 	sprite = {stalker5 stalker6}
 	faction = loners
 	attributes = 
@@ -308,35 +309,35 @@ stalker_experienced =
 		}
 		Strength = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Dexterity = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Endurance = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Perception = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Social = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Marksmanship = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 	}
 	equipped = 
@@ -379,7 +380,7 @@ stalker_experienced =
 
 stalker_experienced2 =
 {
-	name = Stalker
+	name = Сталкер
 	sprite = {stalker7 stalker8}
 	faction = loners
 	attributes = 
@@ -400,35 +401,35 @@ stalker_experienced2 =
 		}
 		Strength = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Dexterity = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Endurance = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Perception = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Social = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Marksmanship = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 	}
 	equipped = 
@@ -471,7 +472,7 @@ stalker_experienced2 =
 
 stalker_experienced3 =
 {
-	name = Stalker
+	name = Сталкер
 	sprite = {stalker7 stalker8}
 	faction = loners
 	attributes = 
@@ -492,35 +493,35 @@ stalker_experienced3 =
 		}
 		Strength = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Dexterity = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Endurance = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Perception = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Social = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Marksmanship = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 	}
 	equipped = 
@@ -549,11 +550,12 @@ stalker_experienced3 =
 	}
 }
 
-stalker_machinegunner =
+volk =
 {
-	name = Volk
+	name = Волк
 	sprite = stalker6
 	faction = loners
+	dialogue = volk
 	attributes = 
 	{
 		Level = 
@@ -572,27 +574,27 @@ stalker_machinegunner =
 		}
 		Strength = 
 		{
-			start = 27
+			start = 19
 		}
 		Dexterity = 
 		{
-			start = 23
+			start = 21
 		}
 		Endurance = 
 		{
-			start = 24
+			start = 18
 		}
 		Perception = 
 		{
-			start = 19
+			start = 20
 		}
 		Social = 
 		{
-			start = 13
+			start = 19
 		}
 		Marksmanship = 
 		{
-			start = 21
+			start = 19
 		}
 		Medical = 
 		{
@@ -607,46 +609,51 @@ stalker_machinegunner =
 	{
 		armor = zarya
 		vest = Partizan
-		weapon = DP
+		weapon = AK74u
+		backweapon = TOZ34
 		backpack = itembag
 	}
 	items =
 	{	
+		12gauge = 1
 		itembag = 1
 		zarya = 1
 		Partizan = 1
-		medkit = 1
+		medkit = 2
 		weapons = 
 		{
-			DP = 
-			{
-				magazine = standart
-			}
+			AK74u = {magazine = standart}
+			TOZ34 = {magazine = standart}
 		}	
 		magazines =
 		{
-			DPmag =
+			AK74mag =
 			{
-				amount = 47
-			}	
-			DPmag =
+				amount = 30				
+			}
+			AK74mag =
 			{
-				amount = 47
-			}	
+				amount = 30				
+			}
+			AK74mag =
+			{
+				amount = 30				
+			}
 		}
 	}
 }
 
-stalker_machinegunner2 =
+eggplant =
 {
-	name = Dubina
+	name = Фанат
 	sprite = stalker7
 	faction = loners
+	dialogue = eggplant
 	attributes = 
 	{
 		Level = 
 		{
-			start = {6 10}
+			start = 8
 		}
 		Health = 
 		{
@@ -660,15 +667,108 @@ stalker_machinegunner2 =
 		}
 		Strength = 
 		{
-			start = 23
+			start = 18
 		}
 		Dexterity = 
 		{
-			start = 24
+			start = 18
 		}
 		Endurance = 
 		{
-			start = 23
+			start = 19
+		}
+		Perception = 
+		{
+			start = 16
+		}
+		Social = 
+		{
+			start = 13
+		}
+		Marksmanship = 
+		{
+			start = 19
+		}
+		Medical = 
+		{
+			start = 9
+		}
+		Mechanical =
+		{
+			start = 14
+		}
+	}
+	equipped = 
+	{
+		armor = zarya
+		vest = Partizan
+		weapon = Type63
+		backpack = itembag
+	}
+	items =
+	{	
+		itembag = 1
+		zarya = 1
+		Partizan = 1
+		medkit = 1
+		weapons = 
+		{
+			Type63 = 
+			{
+				magazine = standart
+			}
+		}	
+		magazines =
+		{
+			Type63mag =
+			{
+				amount = 20
+			}	
+			Type63mag =
+			{
+				amount = 20
+			}	
+		}
+	}
+}
+
+sidorovich =
+{
+	name = Сидорович
+	sprite = sidorovich
+	faction = loners
+	invulnerable
+	immobile
+	money = 130000
+	dialogue = test_dialogue
+	merchant_stock = sidorovich
+	attributes = 
+	{
+		Level = 
+		{
+			start = 12
+		}
+		Health = 
+		{
+			start = 72
+			max = 72
+		}
+		Stamina = 
+		{
+			start = 57
+			max = 57
+		}
+		Strength = 
+		{
+			start = 17
+		}
+		Dexterity = 
+		{
+			start = 13
+		}
+		Endurance = 
+		{
+			start = 17
 		}
 		Perception = 
 		{
@@ -676,7 +776,7 @@ stalker_machinegunner2 =
 		}
 		Social = 
 		{
-			start = 17
+			start = 21
 		}
 		Marksmanship = 
 		{
@@ -684,58 +784,26 @@ stalker_machinegunner2 =
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = 17
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = 20
 		}
 	}
 	equipped = 
 	{
-		armor = zarya
-		vest = BeltA
-		weapon = RPK74
-		backpack = itembag
+	
 	}
 	items =
 	{	
-		itembag = 1
-		zarya = 1
-		BeltA = 1
-		medkit = 1
-		weapons = 
-		{
-			RPK74 = 
-			{
-				magazine = standart
-			}
-		}	
-		magazines =
-		{
-			RPK74mag =
-			{
-				amount = 45
-			}	
-			RPK74mag =
-			{
-				amount = 45
-			}	
-			RPK74mag =
-			{
-				amount = 45
-			}	
-			RPK74mag =
-			{
-				amount = 45
-			}	
-		}
+		
 	}
 }
 
 bandit_newbie =
 {
-	name = Bandit
+	name = Бандит
 	sprite = {bandit1 bandit2 bandit3 bandit4}
 	faction = bandits
 	attributes = 
@@ -746,13 +814,13 @@ bandit_newbie =
 		}
 		Health = 
 		{
-			start = {68 81}
-			max = 81
+			start = 66
+			max = 66
 		}
 		Stamina = 
 		{
-			start = {66 82}
-			max = 82
+			start = 66
+			max = 66
 		}
 		Strength = 
 		{
@@ -791,11 +859,11 @@ bandit_newbie =
 	{
 		vest = BanditJacket
 		weapon = PM
-		backpack = itembag
+		#backpack = itembag
 	}
 	items =
 	{	
-		itembag = 1
+		#itembag = 1
 		BanditJacket = 1
 		weapons = 
 		{
@@ -824,7 +892,7 @@ bandit_newbie =
 
 bandit_experienced =
 {
-	name = Bandit
+	name = Бандит
 	sprite = {bandit5 bandit6}
 	faction = bandits
 	attributes = 
@@ -845,40 +913,39 @@ bandit_experienced =
 		}
 		Strength = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Dexterity = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Endurance = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Perception = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Social = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Marksmanship = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 	}
 	equipped = 
 	{
-		armor = 6b2
 		vest = Partizan
 		weapon = AK74u
 	}
@@ -912,7 +979,7 @@ bandit_experienced =
 
 bandit_experienced2 =
 {
-	name = Bandit
+	name = Бандит
 	sprite = {bandit5 bandit6}
 	faction = bandits
 	attributes = 
@@ -933,46 +1000,45 @@ bandit_experienced2 =
 		}
 		Strength = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Dexterity = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Endurance = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Perception = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Social = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Marksmanship = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Medical = 
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 		Mechanical =
 		{
-			start = {18 22}
+			start = {16 20}
 		}
 	}
 	equipped = 
 	{
-		armor = 6b2
-		vest = Partizan
+		vest = Alpha
 		weapon = SVT
 	}
 	items =
 	{	
-		Partizan = 1
+		Alpha = 1
 		weapons = 
 		{
 			SVT = 
@@ -998,16 +1064,16 @@ bandit_experienced2 =
 	}
 }
 
-bandit_newbie2 =
+bandit_experienced3 =
 {
-	name = Bandit
-	sprite = {bandit1 bandit2 bandit3 bandit4}
+	name = Бандит
+	sprite = {bandit5 bandit6}
 	faction = bandits
 	attributes = 
 	{
 		Level = 
 		{
-			start = {1 3}
+			start = {6 9}
 		}
 		Health = 
 		{
@@ -1018,6 +1084,85 @@ bandit_newbie2 =
 		{
 			start = {66 82}
 			max = 82
+		}
+		Strength = 
+		{
+			start = {16 20}
+		}
+		Dexterity = 
+		{
+			start = {16 20}
+		}
+		Endurance = 
+		{
+			start = {16 20}
+		}
+		Perception = 
+		{
+			start = {16 20}
+		}
+		Social = 
+		{
+			start = {16 20}
+		}
+		Marksmanship = 
+		{
+			start = {16 20}
+		}
+		Medical = 
+		{
+			start = {16 20}
+		}
+		Mechanical =
+		{
+			start = {16 20}
+		}
+	}
+	equipped = 
+	{
+		vest = Alpha
+		weapon = PPSh
+	}
+	items =
+	{	
+		Alpha = 1
+		weapons = 
+		{
+			PPSh = 
+			{
+				magazine = standart
+			}
+		}
+		magazines =
+		{
+			PPShmag =
+			{
+				amount = {29 51}
+			}	
+		}		
+	}
+}
+
+bandit_newbie2 =
+{
+	name = Бандит
+	sprite = {bandit1 bandit2 bandit3 bandit4}
+	faction = bandits
+	attributes = 
+	{
+		Level = 
+		{
+			start = {1 3}
+		}
+		Health = 
+		{
+			start = 66
+			max = 66
+		}
+		Stamina = 
+		{
+			start = 66
+			max = 66
 		}
 		Strength = 
 		{
@@ -1073,7 +1218,7 @@ bandit_newbie2 =
 
 mercenary_experienced =
 {
-	name = Mercenary
+	name = Наемник
 	sprite = merc3
 	faction = mercenaries
 	attributes = 
@@ -1094,44 +1239,46 @@ mercenary_experienced =
 		}
 		Strength = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Dexterity = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Endurance = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Perception = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Social = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Marksmanship = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Medical = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Mechanical =
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 	}
 	equipped = 
 	{
-		armor = merc_vest
+		armor = 6b2
+		vest = merc_vest
 		weapon = M4A1
 	}
 	items =
 	{	
+		6b2 = 1
 		merc_vest = 1
 		weapons = 
 		{
@@ -1164,7 +1311,7 @@ mercenary_experienced =
 
 mercenary_experienced2 =
 {
-	name = Mercenary
+	name = Наемник
 	sprite = merc1
 	faction = mercenaries
 	attributes = 
@@ -1185,44 +1332,46 @@ mercenary_experienced2 =
 		}
 		Strength = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Dexterity = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Endurance = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Perception = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Social = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Marksmanship = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Medical = 
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 		Mechanical =
 		{
-			start = {17 22}
+			start = {17 21}
 		}
 	}
 	equipped = 
 	{
-		armor = merc_vest
+		armor = 6b2
+		vest = merc_vest
 		weapon = L85A2iron
 	}
 	items =
 	{	
+		6b2 = 1
 		merc_vest = 1
 		weapons = 
 		{
@@ -1255,7 +1404,7 @@ mercenary_experienced2 =
 
 mercenary_experienced3 =
 {
-	name = Mercenary
+	name = Наемник
 	sprite = merc2
 	faction = mercenaries
 	attributes = 
@@ -1309,11 +1458,13 @@ mercenary_experienced3 =
 	}
 	equipped = 
 	{
-		armor = merc_vest
+		armor = 6b2
+		vest = merc_vest
 		weapon = M16A1
 	}
 	items =
 	{	
+		6b2 = 1
 		merc_vest = 1
 		weapons = 
 		{
@@ -1346,7 +1497,7 @@ mercenary_experienced3 =
 
 mercenary_scope =
 {
-	name = Scope
+	name = Стрелка
 	sprite = scope
 	faction = mercenaries
 	attributes = 
@@ -1371,7 +1522,7 @@ mercenary_scope =
 		}
 		Dexterity = 
 		{
-			start = 27
+			start = 22
 		}
 		Endurance = 
 		{
@@ -1379,7 +1530,7 @@ mercenary_scope =
 		}
 		Perception = 
 		{
-			start = 30
+			start = 25
 		}
 		Social = 
 		{
@@ -1387,7 +1538,7 @@ mercenary_scope =
 		}
 		Marksmanship = 
 		{
-			start = 28
+			start = 24
 		}
 		Medical = 
 		{
@@ -1400,11 +1551,13 @@ mercenary_scope =
 	}
 	equipped = 
 	{
-		armor = merc_vest
+		armor = 6b2
+		vest = merc_vest
 		weapon = FNFAL
 	}
 	items =
 	{	
+		6b2 = 1
 		merc_vest = 1
 		medkit = 1
 		weapons = 
@@ -1436,13 +1589,492 @@ mercenary_scope =
 	}
 }
 
-#yorha =
-#{
-#	name = Yorha
-#	sprite = yorha
-#	health = 500
-#	maxhealth = 500
-#	stamina = 300
-#	maxstamina = 300
-#	maxencumbrance = 1200
-#}
+soldier1 =
+{
+	name = Солдат
+	sprite = soldier1
+	faction = army
+	attributes = 
+	{
+		Level = 
+		{
+			start = 3
+		}
+		Health = 
+		{
+			start = 76
+			max = 76
+		}
+		Stamina = 
+		{
+			start = 79
+			max = 79
+		}
+		Strength = 
+		{
+			start = {14 18}
+		}
+		Dexterity = 
+		{
+			start = {14 18}
+		}
+		Endurance = 
+		{
+			start = {14 18}
+		}
+		Perception = 
+		{
+			start = {14 18}
+		}
+		Social = 
+		{
+			start = {14 18}
+		}
+		Marksmanship = 
+		{
+			start = {14 18}
+		}
+		Medical = 
+		{
+			start = {14 18}
+		}
+		Mechanical =
+		{
+			start = {14 18}
+		}
+	}
+	equipped = 
+	{
+		armor = 6b2
+		vest = City2
+		weapon = AKS74
+	}
+	items =
+	{	
+		6b2 = 1
+		City2 = 1
+		weapons = 
+		{
+			AKS74 = 
+			{
+				magazine = standart
+			}
+		}	
+		magazines =
+		{
+			AK74mag =
+			{
+				amount = 30
+			}
+			AK74mag =
+			{
+				amount = 30
+			}
+		}
+	}
+}
+
+soldier2 =
+{
+	name = Солдат
+	sprite = soldier2
+	faction = army
+	attributes = 
+	{
+		Level = 
+		{
+			start = 6
+		}
+		Health = 
+		{
+			start = 83
+			max = 83
+		}
+		Stamina = 
+		{
+			start = 85
+			max = 85
+		}
+		Strength = 
+		{
+			start = {16 18}
+		}
+		Dexterity = 
+		{
+			start = {16 18}
+		}
+		Endurance = 
+		{
+			start = {16 18}
+		}
+		Perception = 
+		{
+			start = {16 18}
+		}
+		Social = 
+		{
+			start = {16 18}
+		}
+		Marksmanship = 
+		{
+			start = {16 18}
+		}
+		Medical = 
+		{
+			start = {16 18}
+		}
+		Mechanical =
+		{
+			start = {16 18}
+		}
+	}
+	equipped = 
+	{
+		armor = 6b2
+		vest = Partizan
+		weapon = AK74
+	}
+	items =
+	{	
+		6b2 = 1
+		Partizan = 1
+		medkit = 1
+		weapons = 
+		{
+			AK74 = 
+			{
+				magazine = standart
+			}
+		}	
+		magazines =
+		{
+			AK74mag =
+			{
+				amount = 30
+			}
+			AK74mag =
+			{
+				amount = 30
+			}
+		}
+	}
+}
+
+soldier3 =
+{
+	name = Солдат
+	sprite = soldier3
+	faction = army
+	attributes = 
+	{
+		Level = 
+		{
+			start = 8
+		}
+		Health = 
+		{
+			start = 83
+			max = 83
+		}
+		Stamina = 
+		{
+			start = 85
+			max = 85
+		}
+		Strength = 
+		{
+			start = {18 20}
+		}
+		Dexterity = 
+		{
+			start = {18 20}
+		}
+		Endurance = 
+		{
+			start = {18 20}
+		}
+		Perception = 
+		{
+			start = {18 20}
+		}
+		Social = 
+		{
+			start = {18 20}
+		}
+		Marksmanship = 
+		{
+			start = {18 20}
+		}
+		Medical = 
+		{
+			start = {18 20}
+		}
+		Mechanical =
+		{
+			start = {18 20}
+		}
+	}
+	equipped = 
+	{
+		armor = 6b2
+		vest = Partizan
+		weapon = AKM
+	}
+	items =
+	{	
+		6b2 = 1
+		Partizan = 1
+		medkit = 1
+		weapons = 
+		{
+			AKM = 
+			{
+				magazine = standart
+			}
+		}	
+		magazines =
+		{
+			AKmag =
+			{
+				amount = 30
+			}
+			AKmag =
+			{
+				amount = 30
+			}
+		}
+	}
+}
+
+vist =
+{
+	name = В.Вистулко
+	sprite = soldier3
+	faction = army
+	attributes = 
+	{
+		Level = 
+		{
+			start = 13
+		}
+		Health = 
+		{
+			start = 91
+			max = 91
+		}
+		Stamina = 
+		{
+			start = 87
+			max = 87
+		}
+		Strength = 
+		{
+			start = 21
+		}
+		Dexterity = 
+		{
+			start = 20
+		}
+		Endurance = 
+		{
+			start = 21
+		}
+		Perception = 
+		{
+			start = 22
+		}
+		Social = 
+		{
+			start = 13
+		}
+		Marksmanship = 
+		{
+			start = 25
+		}
+		Medical = 
+		{
+			start = 11
+		}
+		Mechanical =
+		{
+			start = 11
+		}
+	}
+	equipped = 
+	{
+		armor = 6b2
+		vest = BeltA
+		weapon = RPK74
+		backpack = rd54
+	}
+	items =
+	{	
+		rd54 = 1
+		6b2 = 1
+		BeltA = 1
+		medkit = 1
+		weapons = 
+		{
+			RPK74 = 
+			{
+				magazine = standart
+			}
+		}	
+		magazines =
+		{
+			RPK74mag =
+			{
+				amount = 45
+			}	
+			RPK74mag =
+			{
+				amount = 45
+			}	
+			RPK74mag =
+			{
+				amount = 45
+			}	
+			RPK74mag =
+			{
+				amount = 45
+			}	
+		}
+	}
+}
+
+petruxa =
+{
+	name = Петруха
+	sprite = stalker3
+	faction = loners
+	attributes = 
+	{
+		Level = 
+		{
+			start = 4
+		}
+		Health = 
+		{
+			start = {78 94}
+			max = 94
+		}
+		Stamina = 
+		{
+			start = {80 93}
+			max = 93
+		}
+		Strength = 
+		{
+			start = {14 18}
+		}
+		Dexterity = 
+		{
+			start = {14 18}
+		}
+		Endurance = 
+		{
+			start = {14 18}
+		}
+		Perception = 
+		{
+			start = {14 18}
+		}
+		Social = 
+		{
+			start = {14 18}
+		}
+		Marksmanship = 
+		{
+			start = 20
+		}
+		Medical = 
+		{
+			start = {14 18}
+		}
+		Mechanical =
+		{
+			start = {14 18}
+		}
+	}
+	equipped = 
+	{
+		vest = NewbieJacket
+		weapon = TOZ66
+	}
+	items =
+	{	
+		NewbieJacket = 1
+		12gauge = 1
+		weapons = 
+		{
+			TOZ66 = 
+			{
+				magazine = standart
+			}
+		}		
+	}
+}
+
+yorha =
+{
+	name = Yorha
+	sprite = yorha
+	faction = none
+	attributes = 
+	{
+		Level = 
+		{
+			start = {11 14}
+		}
+		Health = 
+		{
+			start = 1361
+			max = 1361
+		}
+		Stamina = 
+		{
+			start = 964
+			max = 964
+		}
+		Strength = 
+		{
+			start = 49
+		}
+		Dexterity = 
+		{
+			start = 43
+		}
+		Endurance = 
+		{
+			start = 41
+		}
+		Perception = 
+		{
+			start = 21
+		}
+		Social = 
+		{
+			start = 19
+		}
+		Marksmanship = 
+		{
+			start = 11
+		}
+		Medical = 
+		{
+			start = 5
+		}
+		Mechanical =
+		{
+			start = 23
+		}
+	}
+	equipped = 
+	{
+		weapon = katana
+	}
+	items =
+	{	
+		katana = 1
+	}
+}

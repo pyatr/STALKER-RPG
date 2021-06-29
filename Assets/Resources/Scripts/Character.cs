@@ -15,8 +15,8 @@ public enum BuiltinCharacterSlots
     Helmet,
     Mask,
     Armor,
-    Eyes,
-    ThighRig
+    Eyes
+    //ThighRig
 }
 
 public enum ActionTypes
@@ -27,7 +27,7 @@ public enum ActionTypes
 
 public class Character : MonoBehaviour
 {
-    private class ShootInfo
+    class ShootInfo
     {
         public int shotsRemaining;
         public Vector2 attackPoint;
@@ -42,68 +42,73 @@ public class Character : MonoBehaviour
     readonly float moveSpeed = 10f;
 
     public List<GameObject> equipmentSlots = new List<GameObject>();
-    public List<string> hostileTowards = new List<string>();
-    public List<string> friendlyTowards = new List<string>();
     public List<GameObject> movingBullets = new List<GameObject>();
     public List<Direction> pathDirections = new List<Direction>();
-    public bool turnFinished = true;
-    public bool performingAction = false;
-    public bool invulnerable = false;
-    public float actionPoints = 18;
-    public string faction = "";
-    public string displayName = "";
-    public int freeCharacterPoints = 0;
-    public int sightDistance = 20;
-    public int cellsLeftToTraverse = 0;
-    public int waitingTurns = 0;
-    int experience = 0;
-    public Game game;
+    public List<string> hostileTowards = new List<string>();
+    public List<string> friendlyTowards = new List<string>();
+    public List<string> tags = new List<string>();
+    public World world;
     public AI brain;
     public PathFinder pathFinder;
     public Character attackTarget = null;
     public GameObject inventory = null;
+    public MerchantStock merchantStock;
     public Vector2 targetPosition;
     public Vector2 moveDelta;
     public Vector2 startPosition;
     public Text characterNameOnGUI;
+    public bool turnFinished = true;
+    public bool performingAction = false;
+    public bool invulnerable = false;
+    public bool immobile = false;
+    public float actionPoints = 18;
+    public float regenerationModifier = 0f;
+    public string faction = "";
+    public string displayName = "";
+    public string dialoguePackageName = "none";
+    public int freeCharacterPoints = 4;
+    public int money = 0;
+    public int sightDistance = 20;
+    public int cellsLeftToTraverse = 0;
+    public int waitingTurns = 0;
+    public int experience = 0;
     //public bool usingKit = false;
 
     public Attribute GetAttribute(string attributeName) { return GetComponent<ObjectAttributes>().GetAttribute(attributeName); }
     public Attribute.ChangeResult Heal(float amount = 0f) { return GetComponent<ObjectAttributes>().ModAttribute("Health", amount); }
-    public Attribute.ChangeResult UseStamina(float amount) { return GetAttribute("Stamina").Modify(-amount + (GetAttribute("Endurance").GetValue() - 14f) / 25); }
-    public Attribute.ChangeResult RestoreStamina(float amount) { return GetAttribute("Stamina").Modify(amount); }
+    public Attribute.ChangeResult UseStamina(float amount) { return GetAttribute("Stamina").Modify(Mathf.Min(0, -amount + (GetAttribute("Endurance").Value - 14f) / 25)); }
+    public Attribute.ChangeResult RestoreStamina(float amount) { return GetAttribute("Stamina").Modify(Mathf.Max(0, amount)); }
     public float Health { get { return GetComponent<ObjectAttributes>().GetAttributeValue("Health"); } }
     public float Stamina { get { return GetComponent<ObjectAttributes>().GetAttributeValue("Stamina"); } }
     public float MaxEncumbrance { get { return GetComponent<ObjectAttributes>().GetAttributeValue("Strength") * 1.5f; } }
-    public float MoveCost { get { return 3f; } }
-    public bool IsPlayer() { return game.characterController.ControlledCharacter == gameObject; }
+    public float MoveCost { get { return 2f; } }
+    public bool IsPlayer() { return world.characterController.ControlledCharacter == gameObject; }
     public bool IsMoving() { return moveDelta != Vector2.zero; }
     public int Level { get { return (int)GetComponent<ObjectAttributes>().GetAttributeValue("Level"); } }
-    public int GetExperience() { return experience; }
 
-    public void EquipItemAsWeapon(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Weapon); }
-    public void EquipVest(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Vest); }
-    public void EquipBelt(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Belt); }
-    public void EquipBackpack(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Backpack); }
-    public void EquipWeaponOnBack(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Backweapon); }
-    public void EquipHelmet(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Helmet); }
-    public void EquipMask(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Mask); }
-    public void EquipArmor(GameObject item) { PlaceItemInSlot(item, BuiltinCharacterSlots.Armor); }
+    public bool EquipItemAsWeapon(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Weapon); }
+    public bool EquipVest(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Vest); }
+    public bool EquipBelt(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Belt); }
+    public bool EquipBackpack(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Backpack); }
+    public bool EquipWeaponOnBack(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Backweapon); }
+    public bool EquipHelmet(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Helmet); }
+    public bool EquipMask(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Mask); }
+    public bool EquipArmor(GameObject item) { return PlaceItemInSlot(item, BuiltinCharacterSlots.Armor); }
 
-    public GameObject weapon { get { return GetItemFromBuiltinSlot(BuiltinCharacterSlots.Weapon); } }
+    public GameObject Weapon { get { return GetItemFromBuiltinSlot(BuiltinCharacterSlots.Weapon); } }
     public GameObject GetSlot(BuiltinCharacterSlots slot) { return inventory.transform.GetChild((int)slot).gameObject; }
 
     public Location GetCurrentLocation()
     {
-        foreach (Location location in game.locations)
-            if (game.DistanceFromToInCells(location.transform.position, transform.position) <= location.cellRadius)
+        foreach (Location location in world.locations)
+            if (Game.Instance.DistanceFromToInCells(location.transform.position, transform.position) <= location.cellRadius)
                 return location;
         return null;
     }
 
     public void UnloadWeapon()
     {
-        Firearm firearmComponent = weapon.GetComponent<Firearm>();
+        Firearm firearmComponent = Weapon.GetComponent<Firearm>();
         if (firearmComponent)
         {
             GameObject magazine = firearmComponent.UnloadMagazine();
@@ -114,9 +119,9 @@ public class Character : MonoBehaviour
 
     public void ReloadWeapon()
     {
-        if (weapon != null)
+        if (Weapon != null)
         {
-            Firearm firearmComponent = weapon.GetComponent<Firearm>();
+            Firearm firearmComponent = Weapon.GetComponent<Firearm>();
             if (firearmComponent)
             {
                 GameObject currentMagazine = null;
@@ -129,20 +134,25 @@ public class Character : MonoBehaviour
                     if (currentMagazine.GetComponent<Magazine>().ammo == currentMagazine.GetComponent<Magazine>().maxammo)
                     {
                         if (IsPlayer())
-                            game.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " is already fully loaded");
+                            world.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " is already fully loaded");
                         return;
                     }
                 }
                 GameObject magazineToLoad = null;
                 GameObject vest = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Vest);
+                GameObject backpack = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Backpack);
                 //GameObject belt = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Belt);
+                List<GameObject> items = new List<GameObject>();
                 if (vest != null)
+                    items.AddRange(vest.GetComponent<LBEgear>().GetAllItems());
+                if (backpack != null && !IsInCombat())
+                    items.AddRange(backpack.GetComponent<LBEgear>().GetAllItems());
+                foreach (GameObject item in items)
                 {
-                    List<GameObject> items = vest.GetComponent<LBEgear>().GetAllItems();
-                    foreach (GameObject item in items)
+                    if (!magazineIsIntegral)
                     {
                         Magazine magazineComponent = item.GetComponent<Magazine>();
-                        if (magazineComponent && !magazineIsIntegral)
+                        if (magazineComponent)
                         {
                             if (magazineComponent.category == firearmComponent.magazineType)
                             {
@@ -155,10 +165,13 @@ public class Character : MonoBehaviour
                                     currentMagazine = magazineComponent.gameObject;
                             }
                         }
+                    }
+                    else
+                    {
                         AmmoBox ammoBoxComponent = item.GetComponent<AmmoBox>();
-                        if (ammoBoxComponent && magazineIsIntegral)
+                        if (ammoBoxComponent)
                         {
-                            if (ammoBoxComponent.bulletType.caliber == firearmComponent.magazine.GetComponent<Magazine>().caliber)
+                            if (ammoBoxComponent.bulletType.caliber.Contains(firearmComponent.magazine.GetComponent<Magazine>().caliber))
                             {
                                 if (UseActionPoints(item.GetComponent<Item>().actionPointsToMove))
                                 {
@@ -167,7 +180,7 @@ public class Character : MonoBehaviour
                                         Destroy(item);
                                 }
                                 else if (IsPlayer())
-                                    game.UpdateLog("Not enough action points to reload " + firearmComponent.GetComponent<Item>().displayName);
+                                    world.UpdateLog("Not enough action points to reload " + firearmComponent.GetComponent<Item>().displayName);
                                 return;
                             }
                         }
@@ -183,26 +196,26 @@ public class Character : MonoBehaviour
                         UnloadWeapon();
                         firearmComponent.LoadMagazine(currentMagazine);
                         if (IsPlayer())
-                            game.UpdateLog("Reloading " + firearmComponent.GetComponent<Item>().displayName);
-                        else if (game.PointIsOnScreen(transform.position))
-                            game.UpdateLog(displayName + " reloads");
+                            world.UpdateLog("Reloading " + firearmComponent.GetComponent<Item>().displayName);
+                        else if (Game.Instance.PointIsOnScreen(transform.position))
+                            world.UpdateLog(displayName + " reloads");
                     }
                     else if (IsPlayer())
-                        game.UpdateLog("Not enough action points to reload " + firearmComponent.GetComponent<Item>().displayName);
+                        world.UpdateLog("Not enough action points to reload " + firearmComponent.GetComponent<Item>().displayName);
                 }
                 else if (IsPlayer())
-                    game.UpdateLog("No magazine found for " + firearmComponent.GetComponent<Item>().displayName);
+                    world.UpdateLog("No magazine found for " + firearmComponent.GetComponent<Item>().displayName);
             }
             else if (IsPlayer())
-                game.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " can't be reloaded");
+                world.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " can't be reloaded");
         }
         else if (IsPlayer())
-            game.UpdateLog("You don't have a weapon");
+            world.UpdateLog("You don't have a weapon");
     }
 
     public int GetAttackDistance()
     {
-        GameObject equippedItem = weapon;
+        GameObject equippedItem = Weapon;
         if (equippedItem != null)
         {
             Firearm equippedFirearm = equippedItem.GetComponent<Firearm>();
@@ -231,7 +244,7 @@ public class Character : MonoBehaviour
             if ((Vector2)objectHit.position == position)
                 return true;//objectCanBeHit = true;
             //return true;
-            if (game.shootableLayers.Contains(objectHit.gameObject.layer))
+            if (Game.Instance.shootableLayers.Contains(objectHit.gameObject.layer))
                 return false;
         }
         //RaycastHit2D[] raycastHit2DSpreadOne = Physics2D.RaycastAll(from, position - from + spread);
@@ -240,7 +253,7 @@ public class Character : MonoBehaviour
         //    Transform objectHit = raycastHit2DSpreadOne[i].transform;
         //    if ((Vector2)objectHit.position == position)
         //        continue;
-        //    if (game.shootableLayers.Contains(objectHit.gameObject.layer))
+        //    if (world.shootableLayers.Contains(objectHit.gameObject.layer))
         //        return false;
         //}
         //RaycastHit2D[] raycastHit2DSpreadTwo = Physics2D.RaycastAll(from, position - from - spread);
@@ -249,7 +262,7 @@ public class Character : MonoBehaviour
         //    Transform objectHit = raycastHit2DSpreadTwo[i].transform;
         //    if ((Vector2)objectHit.position == position)
         //        continue;
-        //    if (game.shootableLayers.Contains(objectHit.gameObject.layer))
+        //    if (world.shootableLayers.Contains(objectHit.gameObject.layer))
         //        return false;
         //}
         return objectCanBeHit;
@@ -257,16 +270,16 @@ public class Character : MonoBehaviour
 
     public float GetMaxActionPoints()
     {
-        //return Mathf.Clamp(GetAttribute("Dexterity").GetValue() * Health / GetAttribute("Health").maxValue, 5, 25);
-        return Mathf.Clamp(GetAttribute("Dexterity").GetValue(), 5, 25);
+        //return Mathf.Clamp(GetAttribute("Dexterity").Value * Health / GetAttribute("Health").maxValue, 5, 25);
+        return Mathf.Clamp(GetAttribute("Dexterity").Value, 5, 25);
     }
 
     [ContextMenu("Print attributes")]
-    public void ListAttirbutes()
+    public void ListAttributes()
     {
         ObjectAttributes attributes = GetComponent<ObjectAttributes>();
         foreach (Attribute a in attributes.attributes)
-            Debug.Log(displayName + ": " + a.name + "/" + a.minValue + "/" + a.value + "/" + a.maxValue);
+            Debug.Log(displayName + ": " + a.Name + "/" + a.MinValue + "/" + a.Value + "/" + a.MaxValue);
     }
 
     public void RestoreActionPoints() { actionPoints = GetMaxActionPoints(); }
@@ -294,7 +307,7 @@ public class Character : MonoBehaviour
             actionPoints -= amount;
             return true;
         }
-        game.GetComponent<InventoryManager>().OverrideItemViewText("Not enough AP!");
+        world.GetComponent<InventoryManager>().OverrideItemViewText("Not enough AP!");
         return false;
     }
 
@@ -302,7 +315,7 @@ public class Character : MonoBehaviour
     {
         if (attackTarget != null)
             return true;
-        foreach (Character character in game.activeCharacters)
+        foreach (Character character in world.activeCharacters)
         {
             if (character.attackTarget != null && IsPlayer())
                 return true;
@@ -317,6 +330,22 @@ public class Character : MonoBehaviour
         if (damage == null)
             return false;
         waitingTurns = 0;
+        if (damage.GetDamageType() == DamageTypes.Bullet && damage.source != null)
+        {
+            Character attacker = damage.source.GetComponent<Character>();
+            int chanceMod = 0;
+            int damageMod = 1;
+            if (attacker != null)
+                chanceMod = (int)Mathf.Max(0, attacker.GetAttribute("Perception").Value - 16f);
+            int[] damageChances = { 20, 40, 70, 100 };
+            int[] damageModifiers = { 100, 70, 60, 40 };
+            int chanceNum = UnityEngine.Random.Range(0, 100) - chanceMod * 3;
+            for (int i = 0; i < damageChances.Length; i++)
+                if (chanceNum >= damageChances[i])
+                    damageMod = damageModifiers[i];
+            damage.modifier = damageMod / 100f;            
+            //damage.amount = damage.amount * damageMod / 100;
+        }
         GameObject equippedArmor = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Armor);
         if (equippedArmor != null)
         {
@@ -337,10 +366,19 @@ public class Character : MonoBehaviour
                     armorComponent.AbsorbDamage(damage);
             }
         }
-        if (damage.GetDamageType() == DamageTypes.Bullet || damage.GetDamageType() == DamageTypes.Blunt)
-            PlaySound(Resources.Load<AudioClip>("Sounds/bullet_impact"), 1f, 0.1f);
+        if (damage.GetDamageType() == DamageTypes.Bullet || damage.GetDamageType() == DamageTypes.Blunt)        
+            PlaySound(Resources.Load<AudioClip>("Sounds/bullet_impact"), 1f, 0.4f);             
         if (!invulnerable)
             damage.Apply(gameObject);
+        //List<GameObject> allItems = GetAllItemsInInventory();
+        //foreach (GameObject possibleArtifact in allItems)
+        //{
+        //    Artifact artifactComponent = possibleArtifact.GetComponent<Artifact>();
+        //    if (artifactComponent)
+        //    {
+        //
+        //    }
+        //}
         if (Health > 0)
         {
             if (damage.source != null)
@@ -348,9 +386,10 @@ public class Character : MonoBehaviour
                 Character attacker = damage.source.GetComponent<Character>();
                 if (attacker != null)
                 {
-                    //if (attackTarget == null)                    
-                    if (attacker.faction != faction && attacker.hostileTowards.Contains(faction) || hostileTowards.Contains(attacker.faction))
-                        attackTarget = attacker;
+                    //if (attackTarget == null)    
+                    if (!IsPlayer())
+                        if (attacker.faction != faction && attacker.hostileTowards.Contains(faction) || hostileTowards.Contains(attacker.faction))
+                            attackTarget = attacker;
                     brain.CallForHelp(attacker);
                 }
             }
@@ -365,7 +404,7 @@ public class Character : MonoBehaviour
                 if (attacker != null)
                 {
                     killedBy = " Killed by " + attacker.displayName + ".";
-                    int levelDif = (int)GetAttribute("Level").value + 1 - (int)attacker.GetAttribute("Level").value;
+                    int levelDif = Level + 1 - attacker.Level;
                     if (levelDif < 0)
                         levelDif = 0;
                     int XPgain = 20 * levelDif;
@@ -379,36 +418,71 @@ public class Character : MonoBehaviour
 
     public void Die(string killedBy = "")
     {
-        game.activeCharacters.Remove(this);
-        DropAllItems();
-        game.UpdateLog(displayName + " dies!" + killedBy);
-        PlaySound(Resources.Load<AudioClip>("Sounds/death"));
-        if (characterNameOnGUI != null)
-            Destroy(characterNameOnGUI.gameObject);
-        Destroy(gameObject);
+        if (world.activeCharacters.Contains(this))
+        {
+            DropAllItems();
+            if (Game.Instance.PointIsOnScreen(transform.position))
+                world.UpdateLog(displayName + " dies!" + killedBy);
+            PlaySound(Resources.Load<AudioClip>("Sounds/death"));
+            if (characterNameOnGUI != null)
+                Destroy(characterNameOnGUI.gameObject);
+            Destroy(gameObject);
+        }
+        world.activeCharacters.Remove(this);
     }
 
-    public int GetXPToNextLevel()
+    public int GetXPToNextLevel(int level)
     {
-        int level = (int)GetAttribute("Level").value;
-        int nextLevel = level + 1;
-        int nextLevelXpFormula = (nextLevel - level) * 50;
-        return nextLevelXpFormula;
+        return (level * (level - 1) / 2) * 200;
+    }
+
+    public List<GameObject> GetAllItemsInInventory()
+    {
+        List<GameObject> items = new List<GameObject>();
+        for (int i = 0; i < equipmentSlots.Count; i++)
+        {
+            GameObject equippedItem = GetItemFromBuiltinSlot((BuiltinCharacterSlots)i);
+            if (equippedItem != null)
+            {
+                items.Add(equippedItem);
+                LBEgear gear = equippedItem.GetComponent<LBEgear>();
+                if (gear)
+                    items.AddRange(gear.GetAllItems());
+                Firearm firearm = equippedItem.GetComponent<Firearm>();
+                if (firearm)
+                    if (firearm.magazine != null)
+                        items.Add(firearm.magazine);
+            }
+        }
+        return items;
     }
 
     public void AddExperience(int xp)
     {
         if (xp > 0)
         {
-            if (experience + xp > GetXPToNextLevel())
-            {
-                GetAttribute("Level").Modify(1);
-                game.UpdateLog(displayName + " gains a level");
-            }
-            experience += xp;
             if (IsPlayer())
+                world.UpdateLog("Recieved " + xp.ToString() + " experience points");
+            int currentLevel = (int)GetAttribute("Level").Value;
+            experience += xp;
+            int nextLevel = currentLevel + 1;
+            int nextLevelXpFormula = GetXPToNextLevel(nextLevel);
+            while (nextLevelXpFormula <= experience)
             {
-                game.UpdateLog("Recieved " + xp.ToString() + " experience points");
+                nextLevel++;
+                nextLevelXpFormula = GetXPToNextLevel(nextLevel);
+            }
+            int levelsGained = nextLevel - currentLevel - 1;
+            while (levelsGained > 0)
+            {
+                Attribute.ChangeResult result = GetAttribute("Level").Modify(1);
+                if (result == Attribute.ChangeResult.None)
+                {
+                    freeCharacterPoints += 3;
+                    if (Game.Instance.PointIsOnScreen(transform.position))
+                        world.UpdateLog(displayName + " gains a level");
+                }
+                levelsGained--;
             }
         }
     }
@@ -432,7 +506,7 @@ public class Character : MonoBehaviour
                 TryPlaceItemInInventory(slot.transform.GetChild(i).gameObject);
     }
 
-    public void PlaceItemInSlot(GameObject item, BuiltinCharacterSlots slot)
+    public bool PlaceItemInSlot(GameObject item, BuiltinCharacterSlots slot)
     {
         GameObject slotObject = GetSlot(slot);
         Item itemComponent = item.GetComponent<Item>();
@@ -441,10 +515,10 @@ public class Character : MonoBehaviour
             if (itemComponent.ItemFitsInSlot(slotObject.GetComponent<ItemSlot>().slotType) > 0)
             {
                 UnequipItemFromSlot(slotObject);
-                slotObject.GetComponent<ItemSlot>().PlaceItem(item);
-                //item.transform.parent = slotObject.transform;
+                return slotObject.GetComponent<ItemSlot>().PlaceItem(item);                
             }
         }
+        return false;
     }
 
     public void DropAllItems()
@@ -465,7 +539,6 @@ public class Character : MonoBehaviour
             if (item != null)
             {
                 encumbrance += item.GetComponent<Item>().GetWeight();
-                //Game.UpdateLog(item.name + ": " + item.GetComponent<Item>().GetWeight().ToString());
             }
         }
         GetComponent<ObjectAttributes>().SetAttribute("Encumbrance", encumbrance);
@@ -482,18 +555,13 @@ public class Character : MonoBehaviour
     {
         if (item != null)
         {
-            ItemExtension extension = item.GetComponent<ItemExtension>();
-            if (!extension)
-                game.DropItemToCell(item, transform.localPosition);
-            else
+            LBEgear gear = item.GetComponent<LBEgear>();
+            if (gear)
             {
-                LBEgear gear = item.GetComponent<LBEgear>();
-                if (gear)
-                {
-                    List<GameObject> items = gear.GetAllItems();
-                    game.DropItemsToCell(items, transform.localPosition);
-                }
+                List<GameObject> items = gear.GetAllItems();
+                world.DropItemsToCell(items, transform.localPosition);
             }
+            world.DropItemToCell(item, transform.localPosition);
         }
     }
 
@@ -503,7 +571,7 @@ public class Character : MonoBehaviour
         if (item.GetComponent<Item>().GetWeight() + CalculateEncumbrance() > MaxEncumbrance)
         {
             if (IsPlayer())
-                game.UpdateLog(item.GetComponent<Item>().displayName + " is too heavy.");
+                world.UpdateLog(item.GetComponent<Item>().displayName + " is too heavy.");
             return false;
         }
         if (item != null)
@@ -538,7 +606,7 @@ public class Character : MonoBehaviour
         directions.Remove(Direction.C);
         foreach (Direction d in directions)
         {
-            Vector2 cell = pathFinder.DirectionToNumbers(d) * game.cellSize + (Vector2)transform.position;
+            Vector2 cell = pathFinder.DirectionToNumbers(d) * Game.Instance.cellSize + (Vector2)transform.position;
             List<Direction> path = pathFinder.FindPath(cell);
             if (path.Count == 1)
                 cells.Add(cell);
@@ -569,40 +637,54 @@ public class Character : MonoBehaviour
         return shortestPath;
     }
 
+    public void PlaySound(AudioClip sound, float spatialBlend = 1.0f, float volumeMod = 1.0f)
+    {
+        GameObject soundObject = new GameObject("Sound");
+        soundObject.transform.position = transform.position;
+        soundObject.AddComponent<OneTimeSoundPlayer>().Play(sound, Game.Instance.SoundVolume, spatialBlend, volumeMod);
+    }
+
     public bool ShootAtPoint(Vector2 position)
     {
         Vector2 characterPosition = transform.position;
         GameObject weapon = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Weapon);
         if (weapon != null)
         {
-            if (Stamina / GetAttribute("Stamina").maxValue <= 0.1f)
+            if (Stamina / GetAttribute("Stamina").MaxValue <= 0.1f)
             {
                 if (IsPlayer())
-                    game.UpdateLog("Not enough stamina to shoot");
+                    world.UpdateLog("Not enough stamina to shoot");
                 return false;
             }
             Firearm firearmComponent = weapon.GetComponent<Firearm>();
             if (firearmComponent)
             {
-                if (firearmComponent.GetAmmoCount() == 0 && IsPlayer())
+                if (firearmComponent.GetAmmoCount() == 0)
                 {
-                    game.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " has no ammo!");
+                    if (IsPlayer())
+                        world.UpdateLog(firearmComponent.GetComponent<Item>().displayName + " has no ammo!");
                     return false;
                 }
-                if (!UseActionPoints(firearmComponent.GetFireMode().actionPoints) && IsPlayer())
+                if (!UseActionPoints(firearmComponent.GetFireMode().actionPoints))
                 {
-                    game.UpdateLog("You don't have enough ap to fire " + firearmComponent.GetComponent<Item>().displayName);
+                    if (IsPlayer())
+                        world.UpdateLog("You don't have enough ap to fire " + firearmComponent.GetComponent<Item>().displayName);
                     return false;
                 }
-                //game.UpdateLog(displayName + " fires " + weapon.GetComponent<Item>().displayName);
+                //world.UpdateLog(displayName + " fires " + weapon.GetComponent<Item>().displayName);
                 Magazine magazineComponent = firearmComponent.magazine.GetComponent<Magazine>();
                 performingAction = true;
                 int recoilDirection = UnityEngine.Random.Range(0, 2);
                 if (recoilDirection == 0)
                     recoilDirection = -1;
-                float finalAccuracy = GetAccuracyMaxSpread();
-                Vector2 startingSpread = new Vector2(UnityEngine.Random.Range(Mathf.Clamp(25 - finalAccuracy, 0, 25), Mathf.Clamp(finalAccuracy - 25, 0, -25)),
-                                                     UnityEngine.Random.Range(Mathf.Clamp(25 - finalAccuracy, 0, 25), Mathf.Clamp(finalAccuracy - 25, 0, -25)));
+                float finalAccuracy = GetAccuracy();
+                float spread = 25 - finalAccuracy;
+                Vector2 startingSpread = Vector2.zero;
+                if (spread > 0)
+                    startingSpread = new Vector2(UnityEngine.Random.Range(spread, -spread), UnityEngine.Random.Range(spread, -spread));
+                startingSpread *= Game.Instance.cellSize;
+                startingSpread /= 150;
+                //Debug.Log(startingSpread);
                 ShootInfo shootInfo = new ShootInfo
                 {
                     attackPoint = position,
@@ -614,6 +696,15 @@ public class Character : MonoBehaviour
                     recoilDirection = recoilDirection,
                     shotsRemaining = firearmComponent.GetFireMode().shotsPerAttack
                 };
+                if (firearmComponent.GetFireMode().fireMode == WeaponFireMode.Automatic && shootInfo.shotsRemaining >= 3)
+                {
+                    int difference = 1;
+                    for (int i = 0; i < shootInfo.shotsRemaining; i++)
+                        if (i % 3 == 0)
+                            difference++;
+                    shootInfo.shotsRemaining += UnityEngine.Random.Range(-difference, difference + 1);
+                    shootInfo.shotsRemaining = Mathf.Max(shootInfo.shotsRemaining, 3);
+                }
                 if (shootInfo.shotsRemaining > 0)
                 {
                     StartCoroutine(Shoot(shootInfo));
@@ -624,7 +715,7 @@ public class Character : MonoBehaviour
         return false;
     }
 
-    public float GetAccuracyMaxSpread()
+    public float GetAccuracy()
     {
         GameObject weapon = GetItemFromBuiltinSlot(BuiltinCharacterSlots.Weapon);
         if (weapon != null)
@@ -634,25 +725,17 @@ public class Character : MonoBehaviour
             {
                 float weaponAccuracy = firearmComponent.Accuracy;
                 //Empty weight is used
-                float weightPenalty = Mathf.Clamp(firearmComponent.Weight - 6f - (GetAttribute("Strength").value - 16f), 0, 50);
-                float handleModifier = Mathf.Clamp(GetAttribute("Level").value - 5 - firearmComponent.handleDifficulty, -5, 20);
-                float skillModifier = GetAttribute("Marksmanship").value / 1.25f;
-                float dexterityModifier = GetAttribute("Dexterity").value / 4;
-                float perceptionModifier = GetAttribute("Perception").value / 1.25f;
-                float finalAccuracy = weaponAccuracy - weightPenalty + handleModifier + skillModifier + dexterityModifier + perceptionModifier;
+                float weightPenalty = Mathf.Clamp(firearmComponent.Weight - 6f - (GetAttribute("Strength").Value - 16f), 0, 50);
+                float handleModifier = Mathf.Clamp(GetAttribute("Level").Value / 2 - 5 - firearmComponent.handleDifficulty, -10, 24);
+                float skillModifier = GetAttribute("Marksmanship").Value;
+                float dexterityModifier = GetAttribute("Dexterity").Value / 4;
+                float perceptionModifier = GetAttribute("Perception").Value / 2;
+                float finalAccuracy = weaponAccuracy - weightPenalty + handleModifier + skillModifier + dexterityModifier + perceptionModifier - 16;
+                //Debug.Log(finalAccuracy);
                 return finalAccuracy;
             }
         }
         return 0f;
-    }
-
-    public void PlaySound(AudioClip sound, float spatialBlend = 1.0f, float volumeMod = 1.0f)
-    {
-        AudioSource audioSource = GetComponent<AudioSource>();
-        audioSource.spatialBlend = spatialBlend;
-        audioSource.volume = game.SoundVolume * volumeMod;
-        audioSource.clip = sound;
-        audioSource.Play();
     }
 
     IEnumerator Shoot(ShootInfo info)
@@ -665,177 +748,98 @@ public class Character : MonoBehaviour
             {
                 info.shotsRemaining = 0;
                 info.firearmComponent.jammed = true;
-                if (game.characterController.ControlledCharacter == gameObject)
-                    game.UpdateLog(info.firearmComponent.GetComponent<Item>().displayName + " is jammed!");
+                if (IsPlayer())
+                    world.UpdateLog(info.firearmComponent.GetComponent<Item>().displayName + " is jammed!");
             }
         }
-        if (info.firearmComponent.GetFireMode().shotsPerAttack == 1)
-            delay = 0.05f;
-        yield return new WaitForSeconds(delay);
-        info.firearmComponent.SpendAmmo();
-        if (Mathf.Clamp(GetAttribute("Level").value * 2 - info.firearmComponent.handleDifficulty, 5, 20) + UnityEngine.Random.Range(0, 6) < 10)
-            info.recoil += new Vector2(info.firearmComponent.GetFireMode().recoil * info.recoilDirection, info.firearmComponent.GetFireMode().recoil * info.recoilDirection);
-        else
-            info.recoil = Vector2.zero;
-        Vector2 randomSpread = Vector2.zero;
-        PlaySound(info.firearmComponent.shootSound, Mathf.Clamp(1f - info.magazineComponent.currentCaliber.damage / 100, 0f, 0.9f));
-        //PlaySound(Resources.Load<AudioClip>("Sounds/echo" + UnityEngine.Random.Range(1, 5).ToString()), 0.9f);
-        for (int i = 0; i < info.magazineComponent.currentCaliber.bulletsPerShot; i++)
+        if (!info.firearmComponent.jammed)
         {
-            if (i > 0)
-                randomSpread = new Vector2(UnityEngine.Random.Range(Mathf.Clamp(25 - info.firearmComponent.Accuracy * 2, 0, 25), Mathf.Clamp(info.firearmComponent.Accuracy * 2 - 25, 0, 25)),
-                                           UnityEngine.Random.Range(Mathf.Clamp(25 - info.firearmComponent.Accuracy * 2, 0, 25), Mathf.Clamp(info.firearmComponent.Accuracy * 2 - 25, 0, 25)));
-            randomSpread /= 4;
-            Vector2 spread = info.spread + info.recoil + randomSpread;
-            GameObject bullet = new GameObject("Bullet") { layer = 14 };
-            Transform bulletTransform = bullet.transform;
-            bulletTransform.SetParent(game.transform);
-            bulletTransform.localScale = Vector3.one * 0.3f;
-            Vector3 newDirection = info.attackPoint - info.characterPosition;
-            float distance = Vector2.Distance(info.attackPoint, info.characterPosition);
-            bulletTransform.up = newDirection + (Vector3)randomSpread * distance / game.accuracyModifier / 10 / (GetAttribute("Stamina").maxValue / Stamina / 4) + (Vector3)spread * distance / game.accuracyModifier * (GetAttribute("Stamina").maxValue / Stamina / 4) * (info.firearmComponent.Condition / info.firearmComponent.GetComponent<Item>().GetMaxCondition() / 2);
-            bulletTransform.position = info.characterPosition;
-            SpriteRenderer bulletSpriteRenderer = bullet.AddComponent<SpriteRenderer>();
-            bulletSpriteRenderer.sprite = Resources.Load<Sprite>("Graphics/bullet");
-            bulletSpriteRenderer.sortingLayerName = "Ground objects";
-            BoxCollider2D bulletCollider = bullet.AddComponent<BoxCollider2D>();
-            bulletCollider.size = new Vector2(0.03f, 0.08f);
-            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), bulletCollider);
-            Rigidbody2D bulletRigidBody = bullet.AddComponent<Rigidbody2D>();
-            bulletRigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            bulletRigidBody.velocity = bulletTransform.up * 16;
-            bulletRigidBody.freezeRotation = true;
-            UseStamina(UnityEngine.Random.Range(0.3f, 0.4f));
-            FiredBullet firedBulletComponent = bullet.AddComponent<FiredBullet>();
-            //firedBulletComponent.startedFromCameraView = Game.PointIsOnScreen(transform.position);
-            firedBulletComponent.game = game;
-            firedBulletComponent.bulletDamage = new BulletDamage(info.magazineComponent.currentCaliber, info.firearmComponent.damageModifier);
-            firedBulletComponent.bulletDamage.source = gameObject;
-            firedBulletComponent.shooter = gameObject;
-            firedBulletComponent.startPoint = bulletTransform.position;
-            float distanceUnadjusted = info.magazineComponent.currentCaliber.distance + info.firearmComponent.distanceModifier;
-            firedBulletComponent.maxDistance = distanceUnadjusted;
-
-            movingBullets.Add(bullet);
-        }
-        info.shotsRemaining--;
-        info.firearmComponent.GetComponent<ObjectAttributes>().GetAttribute("Item condition").Modify(UnityEngine.Random.Range(-0.5f, -0.75f));
-        if (info.shotsRemaining > 0 && info.firearmComponent.GetAmmoCount() > 0)
-            StartCoroutine(Shoot(info));
-        else
-            CalculateEncumbrance();
-    }
-
-    public void MoveOnPathTo(Vector2 position)
-    {
-        if (actionPoints >= MoveCost)
-        {
-            List<Direction> path = pathFinder.FindPath(position);
-            if (path.Count > 0)
-                MoveOnPath(path);
-        }
-    }
-
-    public void MoveOnPath(List<Direction> path)
-    {
-        if (actionPoints >= MoveCost && path.Count > 0)
-        {
-            waitingTurns = 0;
-            pathDirections = path;
-            //Debug.Log(pathDirections.Count + " cells to traverse from " + (Vector2)transform.position + " to " + targetPosition);
-            cellsLeftToTraverse = pathDirections.Count;
-            Vector2 currentPosition = transform.position;
-            Vector2 prevPosition = transform.position;
-            foreach (Direction d in pathDirections)
+            if (info.firearmComponent.GetFireMode().shotsPerAttack == 1)
+                delay = 0.05f;
+            yield return new WaitForSeconds(delay);
+            info.firearmComponent.SpendAmmo();
+            if (info.firearmComponent.GetFireMode().shotsPerAttack > 1)
             {
-                currentPosition += pathFinder.DirectionToNumbers(d) * game.cellSize;
-                Debug.DrawRay(prevPosition, currentPosition - prevPosition, Color.red, 10);
-                prevPosition = currentPosition;
-            }
-        }
-    }
-
-    IEnumerator MoveCharacter()
-    {
-        yield return new WaitForEndOfFrame();
-        if (moveDelta != Vector2.zero)
-        {
-            performingAction = true;
-            transform.position = new Vector3(startPosition.x + moveDelta.x, startPosition.y + moveDelta.y, 0);
-            startPosition = transform.position;
-            float distance = Vector2.Distance(startPosition, targetPosition);
-            if (distance > 0.01f)
-            {
-                StartCoroutine(MoveCharacter());
-            }
-            else
-            {
-                performingAction = false;
-                moveDelta = Vector2.zero;
-                transform.position = new Vector2((float)Math.Round(targetPosition.x, 2), (float)Math.Round(targetPosition.y, 2));
-                OnMoveEnd();
-            }
-        }
-    }
-
-    public bool TryMove(Direction direction)
-    {
-        if (!IsMoving())
-        {
-            if (direction == Direction.C)
-                return true;
-            float additionalCost = 1f;
-            if (Enum.GetName(typeof(Direction), direction).Length > 1)
-                additionalCost = 1.43f;
-            if (UseActionPoints(MoveCost * additionalCost))
-            {
-                //MoveInDirection(direction);
-                UseStamina(UnityEngine.Random.Range(0.1f, 0.16f));
-                Vector2 directionOffset = pathFinder.DirectionToNumbers(direction);
-                startPosition = transform.position;
-                targetPosition = startPosition + directionOffset * game.cellSize;
-                if (!game.PointIsOnScreen(targetPosition))
+                if (Mathf.Clamp(GetAttribute("Level").Value * 2, 5, 24) + UnityEngine.Random.Range(0, 6) < 15 + info.firearmComponent.handleDifficulty)
                 {
-                    transform.position = new Vector2((float)Math.Round(targetPosition.x, 2), (float)Math.Round(targetPosition.y, 2));//targetPosition;
-                    OnMoveEnd();
-                    return true;
+                    float recoilModifier = info.firearmComponent.GetFireMode().recoil / 400f + UnityEngine.Random.Range(-0.005f, 0.005f);
+                    info.recoil += new Vector2(recoilModifier, recoilModifier);
+                    //Debug.Log(info.recoil);
                 }
-                moveDelta = 0.01f * directionOffset * game.cellSize;
-                moveDelta *= moveSpeed;
-                StartCoroutine(MoveCharacter());
-                return true;
+                else
+                {
+                    info.recoil = Vector2.zero;
+                    //if (IsPlayer())
+                    //    world.UpdateLog("You take control of recoil.");
+                }
+            }
+            Vector2 randomSpread = Vector2.zero;
+
+            if (Game.Instance.DistanceFromToInCells(transform.position, Camera.main.transform.position) > info.magazineComponent.currentCaliber.distance)
+            {
+                PlaySound(Resources.Load<AudioClip>("Sounds/echo" + UnityEngine.Random.Range(1, 5).ToString()), 0.9f, 0.7f / info.shotsRemaining);
+                PlaySound(info.firearmComponent.shootSound, 0.3f, 0.1f);
             }
             else
             {
-                StopMovingOnPath();
-                EndTurn();
+                PlaySound(info.firearmComponent.shootSound, Mathf.Clamp(1f - info.magazineComponent.currentCaliber.damage / 100, 0f, 0.9f));
+            }
+            UseStamina(UnityEngine.Random.Range(0.3f, 0.4f));
+            bool shotOutsideCamera = !Game.Instance.PointIsOnScreen(info.attackPoint) && !Game.Instance.PointIsOnScreen(info.characterPosition);
+            for (int i = 0; i < info.magazineComponent.currentCaliber.bulletsPerShot; i++)
+            {
+                if (i > 0)
+                {
+                    float pelletSpread = 25 - info.firearmComponent.Accuracy * 2;
+                    randomSpread = new Vector2(UnityEngine.Random.Range(Mathf.Clamp(pelletSpread, 0, 25), Mathf.Clamp(-pelletSpread, 0, -25)),
+                                               UnityEngine.Random.Range(Mathf.Clamp(pelletSpread, 0, 25), Mathf.Clamp(-pelletSpread, 0, -25)));
+                }
+                Vector2 spread = info.spread + info.recoil * new Vector2(info.spread.x < 0 ? -1 : 1, info.spread.y < 0 ? -1 : 1);
+                Vector3 finalDirection = Vector3.zero;
+                Vector3 newDirection = info.attackPoint - info.characterPosition;
+                float distance = Vector2.Distance(info.attackPoint, info.characterPosition);
+                float staminaModifier = 4 / GetAttribute("Stamina").GetPercentage01();
+                finalDirection = newDirection;
+                finalDirection += (Vector3)spread * distance * staminaModifier * (info.firearmComponent.GetConditionPercentage01() / 2);
+                finalDirection += (Vector3)randomSpread * distance / 50 / staminaModifier;
+                GameObject bullet = new GameObject("Bullet") { layer = 14 };
+                Transform bulletTransform = bullet.transform;
+                bulletTransform.SetParent(world.transform);
+                bulletTransform.localScale = Vector3.one * 0.5f;
+                bulletTransform.up = finalDirection;
+                bulletTransform.position = info.characterPosition;
+                SpriteRenderer bulletSpriteRenderer = bullet.AddComponent<SpriteRenderer>();
+                bulletSpriteRenderer.sprite = Resources.Load<Sprite>("Graphics/bullet");
+                bulletSpriteRenderer.sortingLayerName = "Ground objects";
+                BoxCollider2D bulletCollider = bullet.AddComponent<BoxCollider2D>();
+                bulletCollider.size = new Vector2(0.03f, 0.08f);
+                Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), bulletCollider);
+                Rigidbody2D bulletRigidBody = bullet.AddComponent<Rigidbody2D>();
+                bulletRigidBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+                bulletRigidBody.velocity = bulletTransform.up * 16;
+                bulletRigidBody.freezeRotation = true;
+                FiredBullet firedBulletComponent = bullet.AddComponent<FiredBullet>();
+                firedBulletComponent.bulletDamage = new BulletDamage(info.magazineComponent.currentCaliber, info.firearmComponent.damageModifier) { source = gameObject };
+                firedBulletComponent.shooter = gameObject;
+                firedBulletComponent.startPoint = bulletTransform.position;
+                firedBulletComponent.targetPoint = info.attackPoint;
+                firedBulletComponent.maxDistance = info.magazineComponent.currentCaliber.distance + info.firearmComponent.distanceModifier;
+                movingBullets.Add(bullet);
+            }
+            info.shotsRemaining--;
+            info.firearmComponent.GetComponent<ObjectAttributes>().GetAttribute("Item condition").Modify(UnityEngine.Random.Range(-0.5f, -0.75f));
+            if (info.shotsRemaining > 0 && info.firearmComponent.GetAmmoCount() > 0)
+            {
+                StartCoroutine(Shoot(info));
+            }
+            else
+            {
+                //if (info.firearmComponent.GetAmmoCount() == 0)
+                //    if (info.firearmComponent.magazine != null)
+                //        info.firearmComponent.magazine.GetComponent<Magazine>().currentCaliber = null;
+                CalculateEncumbrance();
             }
         }
-        return false;
-    }
-
-    public float GetPathMoveCost(List<Direction> specificPath = null)
-    {
-        float cost = 0f;
-        List<Direction> path = specificPath;
-        if (path == null)
-            path = pathDirections;
-        for (int i = 0; i < path.Count; i++)
-        {
-            float additionalCost = 1f;
-            if (Enum.GetName(typeof(Direction), path[i]).Length > 1)
-                additionalCost = 1.43f;
-            if (path[i] != Direction.C)
-                cost += additionalCost * MoveCost;
-        }
-        return cost;
-    }
-
-    public void StopMovingOnPath()
-    {
-        cellsLeftToTraverse = 0;
-        pathDirections.Clear();
-        //Debug.Log(displayName + " moving no longer");
     }
 
     public bool EnoughActionPointsToPerformAction(ActionTypes action)
@@ -843,13 +847,13 @@ public class Character : MonoBehaviour
         switch (action)
         {
             case ActionTypes.Attack:
-                if (weapon != null)
-                    if (weapon.GetComponent<Firearm>() != null)
-                        if (actionPoints >= weapon.GetComponent<Firearm>().GetFireMode().actionPoints)
+                if (Weapon != null)
+                    if (Weapon.GetComponent<Firearm>() != null)
+                        if (actionPoints >= Weapon.GetComponent<Firearm>().GetFireMode().actionPoints)
                             return true;
                 break;
             case ActionTypes.Move:
-                return actionPoints >= MoveCost;
+                return actionPoints >= MoveCost * 1.43f;
         }
         return false;
     }
@@ -859,7 +863,7 @@ public class Character : MonoBehaviour
         faction = factionName;
         friendlyTowards.Clear();
         hostileTowards.Clear();
-        InfoBlock factionBlock = game.factions.GetBlock(factionName);
+        InfoBlock factionBlock = Game.Instance.Factions.GetBlock(factionName);
         if (factionBlock != null)
         {
             InfoBlock friendlyBlock = factionBlock.GetBlock("friendlytowards");
@@ -873,8 +877,9 @@ public class Character : MonoBehaviour
 
     public void LoadCharacter(string templateName)
     {
+        world = World.GetInstance();
         InfoBlock template = null;
-        foreach (InfoBlock characterTemplate in game.characterTemplates.subBlocks)
+        foreach (InfoBlock characterTemplate in Game.Instance.CharacterTemplates.subBlocks)
         {
             if (characterTemplate.name == templateName)
             {
@@ -886,7 +891,8 @@ public class Character : MonoBehaviour
         {
             string[] equipmentSlotNames = Enum.GetNames(typeof(BuiltinCharacterSlots));
             int builtInSlotsCount = equipmentSlotNames.Length;
-            //string[] attributeNames = { "Level", "Health", "Stamina", "Encumbrance", "Strength", "Dexterity", "Endurance", "Perception", "Social", "Marksmanship", "Medical", "Mechanical" };
+            invulnerable = template.values.Contains("invulnerable");
+            immobile = template.values.Contains("immobile");
             ObjectAttributes objectAttributes = GetComponent<ObjectAttributes>();
             foreach (KeyValuePair<string, string> kvp in template.namesValues)
             {
@@ -899,7 +905,19 @@ public class Character : MonoBehaviour
                         displayName = kvp.Value.Replace('_', ' ');
                         characterNameOnGUI.text = displayName;
                         break;
+                    case "money": money = int.Parse(kvp.Value); break;
                     case "sprite": GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Graphics/Characters/" + kvp.Value); break;
+                    case "dialogue": dialoguePackageName = kvp.Value; break;
+                    case "merchant_stock":
+                        if (merchantStock == null)
+                        {
+                            GameObject merchantStockObject = new GameObject("MerchantStock");
+                            merchantStockObject.transform.SetParent(transform);
+                            merchantStock = merchantStockObject.AddComponent<MerchantStock>();
+                            merchantStock.infoBlockReference = kvp.Value;
+                            merchantStock.Initiate();
+                        }
+                        break;
                     default: break;
                 }
             }
@@ -912,6 +930,7 @@ public class Character : MonoBehaviour
             {
                 switch (subBlock.name)
                 {
+                    case "money": money = subBlock.GetIntRange(); break;
                     case "sprite": GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Graphics/Characters/" + subBlock.GetRandomValue()); break;
                     case "attributes":
                         foreach (InfoBlock attributeSubBlock in subBlock.subBlocks)
@@ -921,26 +940,31 @@ public class Character : MonoBehaviour
                                 foreach (KeyValuePair<string, string> kvp in attributeSubBlock.namesValues)
                                 {
                                     if (kvp.Key == "start")
-                                        objectAttributes.GetAttribute(attributeSubBlock.name).value = float.Parse(kvp.Value);
+                                        objectAttributes.GetAttribute(attributeSubBlock.name).Set(float.Parse(kvp.Value));
                                     if (kvp.Key == "max")
-                                        objectAttributes.GetAttribute(attributeSubBlock.name).maxValue = float.Parse(kvp.Value);
+                                        objectAttributes.GetAttribute(attributeSubBlock.name).MaxValue = float.Parse(kvp.Value);
                                 }
                                 foreach (InfoBlock attributeRandom in attributeSubBlock.subBlocks)
                                 {
                                     if (attributeRandom.name == "start")
-                                        objectAttributes.GetAttribute(attributeSubBlock.name).value = attributeRandom.GetFloatRange();
+                                        objectAttributes.GetAttribute(attributeSubBlock.name).Set(attributeRandom.GetIntRange());
                                 }
                             }
                         }
                         break;
+                    case "tags":
+                        tags.AddRange(subBlock.values);
+                        foreach (string tag in tags)
+                            world.tags.Add((tag, this));
+                        break;
                     case "equipped":
                         foreach (KeyValuePair<string, string> kvp in subBlock.namesValues)
-                            itemsToEquip[(int)Enum.Parse(typeof(BuiltinCharacterSlots), StringExtensions.FirstCharToUpper(kvp.Key))] = kvp.Value;
+                            itemsToEquip[(int)Enum.Parse(typeof(BuiltinCharacterSlots), TextTools.FirstCharToUpper(kvp.Key))] = kvp.Value;
                         break;
                     case "items":
                         foreach (KeyValuePair<string, string> kvp in subBlock.namesValues)
                             for (int i = 0; i < int.Parse(kvp.Value); i++)
-                                createdItems.Add(game.CreateItem(kvp.Key));
+                                createdItems.Add(world.CreateItem(kvp.Key));
                         foreach (InfoBlock itemSubBlock in subBlock.subBlocks)
                         {
                             switch (itemSubBlock.name)
@@ -948,7 +972,7 @@ public class Character : MonoBehaviour
                                 case "weapons":
                                     foreach (InfoBlock weaponSubBlock in itemSubBlock.subBlocks)
                                     {
-                                        GameObject createdWeapon = game.CreateItem(weaponSubBlock.name);
+                                        GameObject createdWeapon = world.CreateItem(weaponSubBlock.name);
                                         createdItems.Add(createdWeapon);
                                         foreach (KeyValuePair<string, string> kvp in weaponSubBlock.namesValues)
                                         {
@@ -965,7 +989,7 @@ public class Character : MonoBehaviour
                                                                 if (magazine != null)
                                                                 {
                                                                     magazine.ammo = magazine.maxammo;
-                                                                    GameObject tempAmmo = game.CreateItem(magazine.caliber);
+                                                                    GameObject tempAmmo = world.CreateItem(magazine.caliber);
                                                                     magazine.currentCaliber = tempAmmo.GetComponent<AmmoBox>().bulletType;
                                                                     Destroy(tempAmmo);
                                                                 }
@@ -980,7 +1004,7 @@ public class Character : MonoBehaviour
                                 case "magazines":
                                     foreach (InfoBlock magazineSubBlock in itemSubBlock.subBlocks)
                                     {
-                                        GameObject magazine = game.CreateItem(magazineSubBlock.name);
+                                        GameObject magazine = world.CreateItem(magazineSubBlock.name);
                                         createdItems.Add(magazine);
                                         Magazine magazineComponent = magazine.GetComponent<Magazine>();
                                         string type = "standart";
@@ -1006,7 +1030,7 @@ public class Character : MonoBehaviour
                                             type = magazineComponent.caliber;
                                         else
                                             type = magazineComponent.caliber + type;
-                                        GameObject tempAmmo = game.CreateItem(type);
+                                        GameObject tempAmmo = world.CreateItem(type);
                                         magazineComponent.currentCaliber = tempAmmo.GetComponent<AmmoBox>().bulletType;
                                         magazineComponent.ammo = Mathf.Clamp(amount, 0, magazineComponent.maxammo);
                                         Destroy(tempAmmo);
@@ -1041,8 +1065,8 @@ public class Character : MonoBehaviour
 
     public void Say(string s)
     {
-        if (game.PointIsOnScreen(transform.position))
-            game.UpdateLog(displayName + " says: " + '"' + s + '"');
+        if (Game.Instance.PointIsOnScreen(transform.position))
+            world.UpdateLog(displayName + " says: " + '"' + s + '"');
     }
 
     public void StartTurn()
@@ -1051,11 +1075,19 @@ public class Character : MonoBehaviour
         enabled = true;
         RestoreActionPoints();
         turnFinished = false;
+        if (!Game.Instance.AIenabled && !IsPlayer() && world.Player != null)
+        {
+            EndTurn();
+            world.GiveTurnToNextCharacter(this);
+            return;
+        }
         if (brain.enabled)
         {
             brain.Think();
-            if (turnFinished && game.player != null)
-                game.GiveTurnToNextCharacter(this);
+            if (cellsLeftToTraverse > 0 && !IsInCombat())
+                MoveOnGivenPath();
+            if (turnFinished && world.Player != null)
+                world.GiveTurnToNextCharacter(this);
         }
     }
 
@@ -1063,12 +1095,16 @@ public class Character : MonoBehaviour
     {
         if (!turnFinished)
         {
-            RestoreStamina((GetAttribute("Endurance").value - 12f) / 100 + 0.4f);
-            Heal((GetAttribute("Endurance").value - 12f) / 100 + 0.4f);
+            RestoreStamina((GetAttribute("Endurance").Value - 12f) / 20 + 0.2f);
+            Heal((GetAttribute("Endurance").Value - 12f) / 20 + 0.2f + regenerationModifier);
             turnFinished = true;
             characterNameOnGUI.color = Color.yellow;
+            if (IsPlayer())
+                attackTarget = null;
             if (brain.enabled)
                 brain.OnEndTurn();
+            if (merchantStock != null)
+                merchantStock.EndTurn();
         }
     }
 
@@ -1084,47 +1120,253 @@ public class Character : MonoBehaviour
             brain.OnMoveEnd();
     }
 
-    void Update()
+    public void MoveOnPathTo(Vector2 position)
     {
-        if (IsMoving() || performingAction)
+        if (actionPoints >= MoveCost)
+        {
+            List<Direction> path = pathFinder.FindPath(position);
+            if (path.Count > 0)
+                MoveOnPath(path);
+        }
+    }
+
+    public void MoveOnPath(List<Direction> path)
+    {
+        if (immobile)
+            return;
+        if (actionPoints >= MoveCost && path.Count > 0)
         {
             waitingTurns = 0;
-            return;
+            pathDirections = path;
+            //Debug.Log(pathDirections.Count + " cells to traverse from " + (Vector2)transform.position + " to " + targetPosition);
+            cellsLeftToTraverse = pathDirections.Count;
+            Vector2 currentPosition = transform.position;
+            Vector2 prevPosition = transform.position;
+            foreach (Direction d in pathDirections)
+            {
+                currentPosition += pathFinder.DirectionToNumbers(d) * Game.Instance.cellSize;
+                Debug.DrawRay(prevPosition, currentPosition - prevPosition, Color.red, 10);
+                prevPosition = currentPosition;
+            }
         }
-        if (turnFinished)
+    }
+
+    public float GetPathMoveCost(List<Direction> specificPath = null)
+    {
+        float cost = 0f;
+        List<Direction> path = specificPath;
+        if (path == null)
+            path = pathDirections;
+        for (int i = 0; i < path.Count; i++)
         {
-            game.GiveTurnToNextCharacter(this);
-            return;
+            float additionalCost = 1f;
+            if (Enum.GetName(typeof(Direction), path[i]).Length > 1)
+                additionalCost = 1.43f;
+            if (path[i] != Direction.C)
+                cost += additionalCost * MoveCost;
         }
-        if (waitingTurns > 0)
+        return cost;
+    }    
+
+    IEnumerator MoveCharacter()
+    {
+        yield return new WaitForEndOfFrame();
+        if (moveDelta != Vector2.zero)
         {
-            if (IsPlayer())
-                game.UpdateLog("Waiting for " + (waitingTurns - 1).ToString() + " turns");
-            waitingTurns--;
-            RestoreStamina(0.32f);
-            EndTurn();
-            game.GiveTurnToNextCharacter(this);
+            performingAction = true;
+            transform.position = new Vector3(startPosition.x + moveDelta.x, startPosition.y + moveDelta.y, 0);
+            startPosition = transform.position;
+            float distance = Vector2.Distance(startPosition, targetPosition);
+            if (distance > 0.01f)
+            {
+                StartCoroutine(MoveCharacter());
+            }
+            else
+            {
+                performingAction = false;
+                moveDelta = Vector2.zero;
+                transform.position = new Vector2((float)Math.Round(targetPosition.x, 2), (float)Math.Round(targetPosition.y, 2));
+                OnMoveEnd();
+            }
         }
-        if (actionPoints < 1f)
+    }
+
+    public bool CanReachCharacterInDirection(Direction direction)
+    {
+        Vector2 currentPosition = transform.position;
+        Vector2 directionOffset = pathFinder.DirectionToNumbers(direction) * Game.Instance.cellSize;
+        float castDistance = Vector2.Distance(currentPosition, currentPosition + directionOffset);
+        RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(currentPosition, directionOffset, castDistance);
+        //Debug.DrawRay(currentPosition, directionOffset, Color.blue, 40);
+        for (int i = 0; i < raycastHit2D.Length; i++)
         {
-            if (IsInCombat())
+            Transform objectHit = raycastHit2D[i].transform;
+            if (objectHit.gameObject == gameObject)
+                continue;
+            if (objectHit.GetComponent<Character>())
+                return true;
+            if (Game.Instance.nonWalkableLayers.Contains(objectHit.gameObject.layer))
+                return false;
+        }
+        return true;
+    }
+
+    public void MeleeAttackInDirection(Direction direction)
+    {
+        GameObject weapon = Weapon;
+        if (weapon != null)
+        {
+            MeleeWeapon meleeWeaponComponent = weapon.GetComponent<MeleeWeapon>();
+            if (meleeWeaponComponent)
+            {
+                Vector2 currentPosition = transform.position;
+                Vector2 directionOffset = pathFinder.DirectionToNumbers(direction) * Game.Instance.cellSize;
+                float castDistance = Vector2.Distance(currentPosition, currentPosition + directionOffset);
+                RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(currentPosition, directionOffset, castDistance);
+                //Debug.DrawRay(currentPosition, directionOffset, Color.blue, 40);
+                for (int i = 0; i < raycastHit2D.Length; i++)
+                {
+                    Transform objectHit = raycastHit2D[i].transform;
+                    if (objectHit.gameObject == gameObject)
+                        continue;
+                    Character character = objectHit.GetComponent<Character>();
+                    if (character && character != this)
+                    {
+                        Damage damage = new Damage();
+                        damage.amount = meleeWeaponComponent.damage;
+                        character.TakeDamage(damage);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public bool TryMove(Direction direction)
+    {
+        if (!IsMoving())
+        {
+            if (direction == Direction.C)
+                return true;
+            Vector2 currentPosition = transform.position;
+            Vector2 directionOffset = pathFinder.DirectionToNumbers(direction) * Game.Instance.cellSize;
+            float castDistance = Vector2.Distance(currentPosition, currentPosition + directionOffset);
+            RaycastHit2D[] raycastHit2D = Physics2D.RaycastAll(currentPosition, directionOffset, castDistance);
+            //Debug.DrawRay(currentPosition, directionOffset, Color.blue, 40);
+            for (int i = 0; i < raycastHit2D.Length; i++)
+            {
+                Transform objectHit = raycastHit2D[i].transform;
+                if (objectHit.gameObject == gameObject)
+                    continue;
+                if (Game.Instance.nonWalkableLayers.Contains(objectHit.gameObject.layer))
+                {
+                    //Debug.Log(objectHit.gameObject.name + " is in the way");
+                    if (UnityEngine.Random.Range(0, 100) < 30)
+                    {
+                        Character guyInTheWay = objectHit.GetComponent<Character>();
+                        if (guyInTheWay)
+                        {
+                            if (guyInTheWay.IsPlayer() && !hostileTowards.Contains(guyInTheWay.faction))
+                            {
+                                int phraseNum = UnityEngine.Random.Range(0, 4);
+                                string[] phrases = { "Bro, get out of my way", "Don't stand in my way, bro", "Can you move aside?", "Out of the way" };
+                                Say(phrases[phraseNum]);
+                            }
+                        }
+                    }
+                    StopMovingOnPath();
+                    return false;
+                }
+            }
+            float additionalCost = 1f;
+            if (Enum.GetName(typeof(Direction), direction).Length > 1)
+                additionalCost = 1.43f;
+            if (UseActionPoints(MoveCost * additionalCost))
+            {
+                UseStamina(UnityEngine.Random.Range(0.1f, 0.16f));
+                startPosition = currentPosition;
+                targetPosition = startPosition + directionOffset;
+                moveDelta = 0.01f * directionOffset;
+                moveDelta *= moveSpeed;
+                StartCoroutine(MoveCharacter());
+                return true;
+            }
+            else
             {
                 StopMovingOnPath();
                 EndTurn();
-                return;
             }
         }
-        if (cellsLeftToTraverse > 0)
+        return false;
+    }
+
+    bool TryMoveInstantly(Direction direction)
+    {
+        if (!IsMoving())
+        {
+            if (direction == Direction.C)
+                return true;
+            float additionalCost = 1f;
+            if (Enum.GetName(typeof(Direction), direction).Length > 1)
+                additionalCost = 1.43f;
+            if (UseActionPoints(MoveCost * additionalCost))
+            {
+                UseStamina(UnityEngine.Random.Range(0.1f, 0.16f));
+                Vector2 directionOffset = pathFinder.DirectionToNumbers(direction);
+                targetPosition = (Vector2)transform.position + directionOffset * Game.Instance.cellSize;
+                transform.position = new Vector2((float)Math.Round(targetPosition.x, 2), (float)Math.Round(targetPosition.y, 2));//targetPosition;                    
+                OnMoveEnd();
+                return true;
+            }
+            else
+            {
+                StopMovingOnPath();
+                EndTurn();
+            }
+        }
+        return false;
+    }
+
+    public void StopMovingOnPath()
+    {
+        cellsLeftToTraverse = 0;
+        pathDirections.Clear();
+        //Debug.Log(displayName + " moving no longer");
+    }
+
+    public void MoveOnGivenPath()
+    {
+        if (immobile)
+        {
+            StopMovingOnPath();
+            return;
+        }
+        if (!IsMoving() && cellsLeftToTraverse > 0)
         {
             int directionNumber = pathDirections.Count - cellsLeftToTraverse;
             if (directionNumber >= 0)
             {
-                if (TryMove(pathDirections[directionNumber]))
+                Vector2 directionOffset = pathFinder.DirectionToNumbers(pathDirections[directionNumber]);
+                Vector2 tempTargetPosition = (Vector2)transform.position + directionOffset * Game.Instance.cellSize;
+                if (!Game.Instance.PointIsOnScreen(transform.position) && !Game.Instance.PointIsOnScreen(tempTargetPosition))
                 {
-                    cellsLeftToTraverse--;
-                    //Debug.Log(cellsLeftToTraverse);
-                    if (!IsInCombat())
-                        EndTurn();
+                    if (TryMoveInstantly(pathDirections[directionNumber]))
+                    {
+                        cellsLeftToTraverse--;
+                        if (!IsInCombat())
+                            EndTurn();
+                        else
+                            MoveOnGivenPath();
+                    }
+                }
+                else
+                {
+                    if (TryMove(pathDirections[directionNumber]))
+                    {
+                        cellsLeftToTraverse--;
+                        if (!IsInCombat())
+                            EndTurn();
+                    }
                 }
             }
             else
@@ -1132,6 +1374,44 @@ public class Character : MonoBehaviour
                 StopMovingOnPath();
             }
         }
+    }
+
+    void Update()
+    {
+        //if (!IsPlayer())
+        //    world.UpdateLog(displayName + " moving");
+        if (IsMoving() || performingAction)
+        {
+            waitingTurns = 0;
+            return;
+        }
+        if (turnFinished)
+        {
+            world.GiveTurnToNextCharacter(this);
+            return;
+        }
+        if (waitingTurns > 0)
+        {
+            if (IsPlayer())
+                world.UpdateLog("Waiting for " + (waitingTurns - 1).ToString() + " turns");
+            waitingTurns--;
+            RestoreStamina(0.32f);
+            EndTurn();
+            world.GiveTurnToNextCharacter(this);
+            return;
+        }
+        bool inCombat = IsInCombat();
+        if (actionPoints < 1f)
+        {
+            if (inCombat)
+            {
+                StopMovingOnPath();
+                EndTurn();
+                return;
+            }
+        }
+        if (cellsLeftToTraverse > 0)
+            MoveOnGivenPath();
         else if (brain.enabled)
             brain.Think();
     }

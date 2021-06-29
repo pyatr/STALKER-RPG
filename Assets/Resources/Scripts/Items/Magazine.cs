@@ -23,28 +23,13 @@ public class Magazine : Attachment
             if (ammo == 0 || currentCaliber == null)
                 if (ammoBoxComponent.bulletType.caliber.Contains(caliber))
                     caliberFits = true;
-            if (caliberFits)
+            if (caliberFits && ammoBoxComponent.amount > 0 && ammo < maxammo)
             {
-                if (ammoBoxComponent.amount > 0 && ammo < maxammo)
-                {
-                    int transferredAmmo = Mathf.Min(ammoBoxComponent.amount, maxammo - ammo);
-                    ammo += transferredAmmo;
-                    currentCaliber = ammoBoxComponent.bulletType;
-                    ammoBoxComponent.amount -= transferredAmmo;
-                }
-                else
-                {
-                    Debug.Log(gameObject + " is already fully loaded or ammo box has no ammo");
-                }
+                int transferredAmmo = Mathf.Min(ammoBoxComponent.amount, maxammo - ammo);
+                ammo += transferredAmmo;
+                currentCaliber = ammoBoxComponent.bulletType;
+                ammoBoxComponent.amount -= transferredAmmo;
             }
-            else
-            {
-                Debug.Log(ammoBox.name + " has wrong caliber than " + gameObject.name + ": " + ammoBoxComponent.bulletType.caliber + " vs " + caliber);
-            }
-        }
-        else
-        {
-            Debug.Log(ammoBox.name + " does not have bullet component");
         }
     }
 
@@ -52,7 +37,7 @@ public class Magazine : Attachment
     {
         if (currentCaliber != null && ammo > 0)
         {
-            GameObject ammoBox = GetComponent<Item>().game.CreateItem(currentCaliber.caliber);
+            GameObject ammoBox = GetComponent<Item>().world.CreateItem(currentCaliber.caliber);
             if (ammoBox != null)
             {
                 AmmoBox ammoBoxComponent = ammoBox.GetComponent<AmmoBox>();

@@ -4,10 +4,10 @@
 	tumble = 1
 	weight = 0.016
 	caliber = 9x18
-	price = 20
+	price = 15
 	damage = 20
 	box = 16
-	AP_to_move = 6
+	AP_to_move = 3
 	distance = 10
 	color = {200 200 200}
 	sprite = 9x18box
@@ -28,18 +28,39 @@
 	}
 }
 
+7.62x25 = 
+{
+	penetration = 9
+	tumble = 1
+	weight = 0.021
+	caliber = 7.62x25
+	price = 19
+	damage = 26
+	box = 20
+	AP_to_move = 3
+	distance = 12
+	color = {200 200 200}
+	sprite = 76225box
+	item_slots =
+	{
+		general_small = 1
+		general_medium = 4
+		general_large = 10
+	}
+}
+
 7.62x39 = 
 {	
 	penetration = 15
 	tumble = 1
 	weight = 0.024
 	caliber = 7.62x39
-	price = 100
+	price = 35
 	AP_to_move = 6
 	damage = 37
 	box = 60
 	distance = 25
-	sprite = 762x39ammobox
+	sprite = 762x39box
 	color = {200 200 200}
 	item_slots =
 	{
@@ -52,34 +73,34 @@
 		{
 			penetration = 19
 			tumble = 0.9
-			price = 140
+			pice = 45
 			color = {250 50 50}
 		}
 		M67 = 
 		{
 			penetration = 16
 			tumble = 1.1
-			price = 122
+			price = 47
 			color = {50 150 50}
 		}
 		BZ = 
 		{
 			incendiary_damage = 6
 			penetration = 19
-			price = 176
+			price = 53
 			color = {50 150 150}
 		}
 		T-45 =
 		{
 			tracer = true
-			price = 145
+			price = 41
 			color = {50 250 250}
 		}
 		UZ = 
 		{		
 			penetration = 16
 			tumble = 1.34
-			price = 165
+			price = 42
 			color = {50 50 250}
 		}
 	}
@@ -90,7 +111,7 @@
 	penetration = 14
 	tumble = 1
 	weight = 0.013
-	price = 87
+	price = 31
 	caliber = 5.45x39
 	damage = 34
 	AP_to_move = 6
@@ -127,12 +148,12 @@
 	penetration = 9
 	tumble = 1
 	weight = 0.018
-	price = 100
+	price = 26
 	bullets = 12
 	caliber = 12gauge
 	damage = 3
 	box = 20
-	sprite = 12gauge
+	sprite = 12gaugebox
 	AP_to_move = 5
 	item_slots =
 	{
@@ -147,7 +168,7 @@
 	penetration = 13
 	tumble = 1
 	weight = 0.011
-	price = 103
+	price = 34
 	caliber = 5.56x56
 	damage = 32
 	box = 20
@@ -168,7 +189,7 @@
 	penetration = 19
 	tumble = 1
 	weight = 0.018
-	price = 150
+	price = 49
 	caliber = 7.62x54
 	damage = 40
 	box = 20
@@ -189,12 +210,12 @@
 	penetration = 19
 	tumble = 1
 	weight = 0.018
-	price = 161
+	price = 56
 	caliber = 7.62x51
 	damage = 41
 	AP_to_move = 6
 	box = 20
-	sprite = 76251
+	sprite = 76251box
 	distance = 45
 	color = {211 211 211}
 	item_slots =

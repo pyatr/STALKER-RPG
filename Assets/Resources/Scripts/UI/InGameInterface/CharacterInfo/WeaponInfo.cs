@@ -4,14 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class WeaponInfo : MonoBehaviour
-{
-    public Game game;
-
+{    
     private Transform weaponImage;
     private Transform ammoCounter;
     private Text weaponName;
     private Text ammoCounterText;
     private Text weaponFireModeText;
+    private World world;
 
     private void Start()
     {
@@ -20,13 +19,14 @@ public class WeaponInfo : MonoBehaviour
         weaponName = transform.Find("WeaponName").GetComponent<Text>();
         ammoCounterText = ammoCounter.GetChild(0).GetComponent<Text>();
         weaponFireModeText = transform.Find("FireMode").GetComponent<Text>();
+        world = World.GetInstance();
     }
 
     private void Update()
     {
-        if (game.player != null)
+        if (world.Player != null)
         {
-            Character characterComponent = game.player.GetComponent<Character>();
+            Character characterComponent = world.Player.GetComponent<Character>();
             GameObject equippedItem = characterComponent.GetItemFromBuiltinSlot(BuiltinCharacterSlots.Weapon);
             if (equippedItem != null)
             {
@@ -38,7 +38,7 @@ public class WeaponInfo : MonoBehaviour
                 Firearm playerWeaponFirearmComponent = equippedItem.GetComponent<Firearm>();
                 weaponName.text = equippedItem.GetComponent<Item>().displayName;
                 Image slotImage = weaponImage.GetComponent<Image>();
-                slotImage.sprite = equippedItem.GetComponent<Item>().sprite;
+                slotImage.sprite = equippedItem.GetComponent<Item>().Sprite;
                 RectTransform rectTransform = GetComponent<RectTransform>();
                 float scale = 1.0f;
                 scale = Mathf.Min(rectTransform.sizeDelta.x / slotImage.sprite.texture.width, rectTransform.sizeDelta.y / slotImage.sprite.texture.height);
@@ -53,7 +53,7 @@ public class WeaponInfo : MonoBehaviour
                     ammoCounter.GetComponent<Image>().enabled = true;
                     if (playerWeaponFirearmComponent.magazine != null)
                     {
-                        ammoCounter.GetComponent<Image>().sprite = game.icons.ammoIcon;
+                        ammoCounter.GetComponent<Image>().sprite = Game.Instance.Icons.ammoIcon;
                         ammoCounterText.text = playerWeaponFirearmComponent.magazine.GetComponent<Magazine>().ammo.ToString();
                         if (playerWeaponFirearmComponent.magazine.GetComponent<Magazine>().currentCaliber != null)
                             ammoCounterText.color = playerWeaponFirearmComponent.magazine.GetComponent<Magazine>().currentCaliber.textColor;
@@ -62,7 +62,7 @@ public class WeaponInfo : MonoBehaviour
                     }
                     else
                     {
-                        ammoCounter.GetComponent<Image>().sprite = game.icons.nomagazineIcon;
+                        ammoCounter.GetComponent<Image>().sprite = Game.Instance.Icons.nomagazineIcon;
                         ammoCounterText.text = "";
                         weaponFireModeText.text = "";
                     }

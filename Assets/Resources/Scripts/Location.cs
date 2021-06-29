@@ -5,18 +5,18 @@ using UnityEngine;
 
 public class Location : MonoBehaviour
 {
+    private World world;
     public string ownerFaction = "None";
     public string locationName = "Unknown";
     public Transform guardPoints;
     public Transform innerGuardPoints;
     public Transform restingPoints;
     public int cellRadius = 20;
-    Dictionary<Transform, Character> occupiedPoints = new Dictionary<Transform, Character>();
-    Game game;
+    public Dictionary<Transform, Character> occupiedPoints = new Dictionary<Transform, Character>();
 
     public void Start()
     {
-        game = GameObject.Find("World").GetComponent<Game>();
+        world = World.GetInstance();
         guardPoints = transform.Find("AIPoints").Find("Guard");
         innerGuardPoints = transform.Find("AIPoints").Find("InnerGuard");
         restingPoints = transform.Find("AIPoints").Find("Resting");
@@ -45,7 +45,7 @@ public class Location : MonoBehaviour
         if (occupiedPoints.ContainsKey(point))
         {
             //if (locationName == "Farm")
-            //    Debug.Log(point.position + " occupied by " + occupier.name);
+            //Debug.Log(point.position + " occupied by " + occupier.name);
             occupiedPoints[point] = occupier;
         }
     }
@@ -58,13 +58,20 @@ public class Location : MonoBehaviour
             occupiedPoints[point] = null;
     }
 
-    public bool PointIsOccupiedByAnyCharacter(Transform point)
+    public bool PointIsOccupiedByAnyCharacter(Transform point, Character exception = null)
     {
-        foreach (Character character in game.activeCharacters)
+        foreach (Character character in world.activeCharacters)
         {
-            Vector2 charPosition = new Vector2(character.transform.position.x, character.transform.position.y);
-            if (game.VectorsAreEqual(charPosition, point.position))
-                return true;
+            if (character != exception)
+            {
+                Vector2 charPosition = new Vector2(character.transform.position.x, character.transform.position.y);
+                if (Game.Instance.VectorsAreEqual(charPosition, point.position))
+                {
+                    //character.brain.Wander();
+                    //Debug.Log(point.name + " already occupied, will try to find another location");
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -107,8 +114,10 @@ public class Location : MonoBehaviour
     Transform GetRandomFreePoint(Transform points)
     {
         List<Transform> freePoints = GetAllFreePoints(points);
-        if (freePoints.Count > 0)
+        if (freePoints.Count > 1)
             return freePoints.ElementAt(Random.Range(0, freePoints.Count - 1));
+        else if (freePoints.Count == 1)
+            return freePoints[0];
         return null;
     }
 
@@ -125,6 +134,16 @@ public class Location : MonoBehaviour
     public Transform GetFreeRestingSpace()
     {
         return GetRandomFreePoint(restingPoints);
+    }
+
+    public Transform GetSpaceByName(string spaceName, string parentName)
+    {
+        Transform points = transform.Find("AIPoints").Find(parentName);
+        if (points != null)
+            for (int i = 0; i < points.childCount; i++)
+                if (points.GetChild(i).name == spaceName)
+                    return points.GetChild(i);
+        return null;
     }
 
     //public void Update()

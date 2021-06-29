@@ -4,35 +4,60 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    public Dictionary<string, int> slots = new Dictionary<string, int>();
-    public List<string> secondarySlots = new List<string>();
-    public List<GameObject> extensions = new List<GameObject>();
-    public string primarySlot = "";
-
     Sprite _sprite;
-    public int basePrice = 3000;
-    public int actionPointsToMove = 3;
-    public string displayName;
-    public Game game;
-    public bool canBeRepaired = false;
-
-    public Sprite sprite { get { return _sprite; } set { _sprite = value; } }
+    public Sprite Sprite { get { return _sprite; } set { _sprite = value; } }
     public float Weight { get { return GetComponent<ObjectAttributes>().GetAttributeValue("Weight"); } }
     public float Condition { get { return GetComponent<ObjectAttributes>().GetAttributeValue("Item condition"); } }
-    public float GetMaxCondition() { return GetComponent<ObjectAttributes>().GetAttribute("Item condition").maxValue; }
+    public float GetMaxCondition() { return GetComponent<ObjectAttributes>().GetAttribute("Item condition").MaxValue; }
 
-    public int price
+    public int Price
     {
         get
         {
             if (Condition == 0)
-                return basePrice;
+                return 0;// basePrice;
             int amount = 1;
             if (GetComponent<AmmoBox>())
                 amount = GetComponent<AmmoBox>().amount;
+            //if (GetComponent<Magazine>())
+            //    amount = Mathf.Max(GetComponent<Magazine>().ammo, 1);
             int finalPrice = basePrice * amount * (int)Condition / (int)GetMaxCondition();
+            Magazine magazineComponent = GetComponent<Magazine>();
+            if (magazineComponent)
+                if (magazineComponent.currentCaliber != null)
+                    finalPrice += magazineComponent.currentCaliber.price * magazineComponent.ammo;
+            
+            Firearm firearmComponent = GetComponent<Firearm>();
+            if (firearmComponent)
+                if (firearmComponent.magazine != null)
+                    if (firearmComponent.magazine.GetComponent<Magazine>().currentCaliber != null)
+                        finalPrice += firearmComponent.magazine.GetComponent<Magazine>().currentCaliber.price * firearmComponent.magazine.GetComponent<Magazine>().ammo + firearmComponent.magazine.GetComponent<Item>().basePrice;
+            LBEgear gearComponent = GetComponent<LBEgear>();
+            if (gearComponent)
+            {
+                List<GameObject> items = gearComponent.GetAllItems();
+                foreach (GameObject item in items)
+                    finalPrice += item.GetComponent<Item>().Price;
+            }
             return finalPrice;
         }
+    }
+
+    public World world;
+    public Character lastOwner = null;
+
+    public Dictionary<string, int> slots = new Dictionary<string, int>();
+    public List<string> secondarySlots = new List<string>();
+    public List<ItemExtension> extensions = new List<ItemExtension>();
+    public string primarySlot = "";
+    public int basePrice = 3000;
+    public int actionPointsToMove = 3;
+    public string displayName;    
+    public bool canBeRepaired = false;
+
+    private void Start()
+    {
+        world = World.GetInstance();
     }
 
     public ItemSlot GetSlot()
@@ -43,14 +68,15 @@ public class Item : MonoBehaviour
         return itemSlot;
     }
 
-    public GameObject GetOwner()
+    public Character GetOwner()
     {
         Transform currentTransform = transform;
         while (currentTransform.parent != null)
         {
             currentTransform = currentTransform.parent;
-            if (currentTransform.GetComponent<Character>())            
-                return currentTransform.gameObject;            
+            Character ownerCharacterComponent = currentTransform.GetComponent<Character>();
+            if (ownerCharacterComponent)            
+                return ownerCharacterComponent;            
         }
         return null;
     }

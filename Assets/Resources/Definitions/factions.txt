@@ -129,3 +129,39 @@ mercenaries =
 		clear_sky
 	}
 }
+
+mutant_dogs =
+{
+	name = Dogs
+	hostiletowards =
+	{
+		mutant_boars
+		duty
+		army
+		freedom
+		bandits
+		loners
+		army
+		clear_sky
+		mercenaries
+		monolith
+	}
+}
+
+mutant_boars =
+{
+	name = Boars
+	hostiletowards =
+	{
+		mutant_dogs
+		duty
+		army
+		freedom
+		bandits
+		loners
+		army
+		clear_sky
+		mercenaries
+		monolith
+	}	
+}

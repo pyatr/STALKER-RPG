@@ -14,6 +14,7 @@ public class Bullet
     public Color32 textColor = new Color32(255, 255, 255, 255);
     public bool tracer = false;
     public float weight = 0;
+    public int price = 60;
 
     public Bullet ShallowCopy()
     {

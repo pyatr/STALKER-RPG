@@ -1,0 +1,47 @@
+knife = 
+{
+	name = Нож_6Х4
+	sprite = knife
+	price = 3236
+	weight = 0.5
+	AP_to_move = 2
+	AP_to_attack = 3
+	handle_difficulty = 7
+	damage = 29
+}
+
+katana = 
+{
+	name = Катана
+	sprite = katana
+	price = 37645
+	weight = 1.2
+	AP_to_move = 4
+	AP_to_attack = 4
+	handle_difficulty = 15
+	damage = 51
+}
+
+dog_bite =
+{
+	name = Укус
+	sprite = none
+	price = 150
+	weight = 0
+	AP_to_move = 3
+	AP_to_attack = 3
+	handle_difficulty = 5
+	damage = 15
+}
+
+boar_bite =
+{
+	name = Клыки
+	sprite = none
+	price = 150
+	weight = 0
+	AP_to_move = 3
+	AP_to_attack = 5
+	handle_difficulty = 7
+	damage = 28
+}

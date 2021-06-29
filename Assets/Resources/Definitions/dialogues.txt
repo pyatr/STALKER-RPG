@@ -1,0 +1,303 @@
+#Forbidden page names: end
+
+test_dialogue =
+{
+	starting_node = doing_nothing
+	pages = 
+	{
+		doing_nothing =
+		{
+			text = {Что принес?}
+			nodes = 
+			{
+				hello		
+				trade_start
+				bye
+			}
+		}
+		ask_for_job_answer = 
+		{
+			text = {Есть дело одно. Надо до ЧАЭС сбегать 10 раз туда и обратно, возьмешься?}
+			nodes =
+			{
+				job_no
+			}
+		}
+		make_peace_with_army_answer_yes =
+		{
+			text = {Давай сюда. Будут тебя терпеть 600 ходов, а дальше как знаешь.}			
+			take_money = 20000
+			make_peace =
+			{
+				army = 600
+			}			
+			nodes = 
+			{
+				
+			}
+		}
+		offer_actual_job = 
+		{
+			text = {Шучу я. Иди с Волком поговори, у него работа есть.}
+			nodes =
+			{
+			
+			}
+		}
+		make_peace_with_army_answer_no =
+		{
+			text = {Тогда чего ты мне голову морочишь?}
+			nodes = 
+			{
+				#hehehe
+			}
+		}
+		make_peace_with_army_offer =
+		{
+			text = {Не вопрос. 20000 заплати и я все улажу.}
+			nodes = 
+			{
+				make_peace_with_army
+				not_make_peace
+			}
+		}
+		hello_response =
+		{
+			text = {И тебе привет.}
+			nodes = 
+			{
+				ask_for_job
+				ask_about_army_bribe
+				bye
+			}		
+		}
+	}
+	nodes = 
+	{
+		ask_for_job =
+		{
+			text = {Работа есть?}
+			leads_to = ask_for_job_answer
+		}
+		ask_about_army_bribe =
+		{
+			text = {Можешь военных на время утихомирить? Мне надо из зоны выйти.}			
+			leads_to = make_peace_with_army_offer
+			reputation_required =
+			{
+				army = hostile
+			}		
+		}
+		not_make_peace =
+		{
+			text = {Не, не буду.}
+			leads_to = doing_nothing
+		}
+		make_peace_with_army =
+		{
+			text = {Держи свои деньги.}
+			text_failure = {Нет у меня столько.}
+			leads_to = make_peace_with_army_answer_yes
+			leads_to_failure = make_peace_with_army_answer_no
+			required_money = 20000
+		}
+		trade_start =
+		{
+			text = {Давай поторгуем.}
+			trade
+		}
+		hehehe = 
+		{
+			text = {Хыхыхы.}
+		}
+		hello =
+		{
+			text = {Здорово, Сидор!}
+			leads_to = hello_response
+		}
+		bye = 
+		{
+			text = {До встречи.}
+		}
+		job_no =
+		{
+			text = {Чего?!}
+			leads_to = offer_actual_job
+		}
+	}
+}
+
+volk = 
+{
+	starting_node = begin
+	pages = 
+	{
+		begin =
+		{
+			text = {Здорово.}
+			nodes = 
+			{
+				hello
+				depot_under_control
+				bye
+			}
+		}
+		offer_job =
+		{
+			text = {Есть. Надо выбить бандитов с АТП к северо-востоку отсюда.}
+			# С тобой пойдет Петруха и трое новичков. Возьмешься?}
+			nodes = 
+			{
+				agree_to_take_job
+				ask_for_gun
+				decline
+			}
+		}
+		offer_job2 =
+		{
+			text = {У меня тут лишнее ружье завалялось. Если согласишься, отдам его и пачку патронов.}
+			nodes =
+			{
+				agree_to_take_job2
+				decline2
+			}
+		}
+		get_reward = 
+		{
+			text = {Молодец. Держи свою награду +23000.}
+			take_money = -23000
+			state_changes = 
+			{
+				recieved_award = true
+			}
+			nodes =
+			{
+				bye
+			}
+		}
+		job_accepted =
+		{
+			text = {Хорошо. Лучше сделать крюк и зайти с севера, там больше укрытий. Только сначала осмотри свою снарягу на кнопке Tab. Положи в жилет все, что будет нужно в бою. Когда в тебя стреляют, в рюкзак тянуться нет времени. И не забудь открыть кнопкой С меню персонажа и распределить свои очки атрибутов.}
+			#add_companions = 			
+			state_changes =
+			{
+				got_depot_takeover_quest = true
+			}
+			nodes =
+			{
+				bye
+			}
+		}
+		job_accepted2 =
+		{
+			text = {Держи. Лучше сделать крюк и зайти с севера, там больше укрытий. Только сначала осмотри свою снарягу на кнопке Tab. Положи в жилет все, что будет нужно в бою. Когда в тебя стреляют, в рюкзак тянуться нет времени. Не забудь открыть кнопкой С меню персонажа и распределить свои очки атрибутов.}
+			state_changes =
+			{
+				got_depot_takeover_quest = true
+				got_weapon_for_assault = true
+			}
+			recieve_items = 
+			{
+				TOZ34
+				12gauge
+			}
+			nodes =
+			{
+				bye
+			}
+		}
+	}
+	nodes = 
+	{
+		depot_under_control = 
+		{
+			text = {Нет больше бандитов.}
+			leads_to = get_reward
+			dead_character_tags = 
+			{
+				DepotBandits
+			}
+			required_states = 
+			{
+				recieved_award = false
+			}
+		}
+		hello =
+		{
+			text = {Есть работа?}
+			leads_to = offer_job
+			required_states =
+			{
+				got_depot_takeover_quest = false
+			}
+		}
+		agree_to_take_job =
+		{
+			text = {Согласен.}
+			leads_to = job_accepted
+		}
+		agree_to_take_job2 =
+		{
+			text = {Согласен, давай сюда.}
+			leads_to = job_accepted2
+		}
+		ask_for_gun =
+		{
+			text = {Погоди, у меня же и оружия нормального нет.}
+			leads_to = offer_job2
+			required_states = 
+			{
+				got_weapon_for_assault = false
+			}
+		}
+		decline =
+		{
+			text = {Не потяну я такое.}
+		}
+		decline2 =
+		{
+			text = {Ай, забудь.}
+		}
+		bye = 
+		{
+			text = {До встречи.}
+		}
+	}
+}
+
+eggplant = 
+{
+	starting_node = begin
+	pages = 
+	{
+		begin =
+		{
+			text = {Чего тебе?}
+			nodes = 
+			{
+				hello		
+				bye
+			}
+		}
+		no_ask =
+		{
+			text = {Иди с Волком болтай, а мне неохота.}
+		}
+	}
+	nodes = 
+	{
+		hello =
+		{
+			text = {Спросить хотел.}
+			leads_to = no_ask
+		}
+		ladno =
+		{
+			text = {Ладно.}
+		}
+		bye = 
+		{
+			text = {До встречи.}
+		}
+	}
+}

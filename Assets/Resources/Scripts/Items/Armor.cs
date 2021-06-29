@@ -19,10 +19,11 @@ public class Armor : MonoBehaviour
                     //Debug.Log(resistances[DamageTypes.Bullet] + "/" + newBulletDamage.penetration + "/" + difference + "/" + newBulletDamage.damage);
                     newBulletDamage.damage -= newBulletDamage.damage * difference / 10;
                     bulletDamage.bulletStats = newBulletDamage;
+                    gameObject.GetComponent<ObjectAttributes>().GetAttribute("Item condition").Modify(difference / 50 + Random.Range(-0.01f, 0.01f));
                 }
                 break;
             default:
-                
+
                 break;
         }
     }

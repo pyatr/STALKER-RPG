@@ -1,0 +1,49 @@
+sidorovich =
+{
+	refresh_frequency = 850
+	money_gain_amount = {15000 30000}
+	max_money = 150000
+	item_refresh_amount = {9 14}
+	max_occupied_slots = 64
+	items =
+	{		
+		PMm = 1
+		PMm12Rounds = {1 2}
+		AK = 1
+		AK74 = 1
+		AK74u = 1
+		PPSh = 1
+		PPS43 = 1
+		Type63 = 1
+		SKS = 1
+		TT33 = 1
+		itembag = {1 2}
+		rd54 = {1 2}
+		TTmag = {1 2}
+		Type63mag = {1 2}
+		#VEPR = 1
+		#VEPRmag = {1 2}
+		#7.62x51 = {1 2}
+		7.62x25 = {2 5}
+		AK74mag = {1 3}
+		5.45x39 = {1 3}
+		5.45x39BP = 1
+		7.62x39BP = 1
+		AKMS = 1
+		TOZ66 = {1 4}
+		zarya = {1 2}
+		12gauge = {1 3}
+		AKM = 1
+		AKmag = {1 5}
+		7.62x39 = {2 4}
+		PM = {1 3}
+		PM8Rounds = {3 8}
+		9x18 = {4 7}
+		SVT = 1
+		SVTmag = {1 2}
+		7.62x54 = {1 2}
+		Mosin = 1
+		medkit = {1 4}
+		repairkit = {1 2}
+	}
+}

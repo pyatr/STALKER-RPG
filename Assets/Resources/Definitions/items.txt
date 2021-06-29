@@ -4,7 +4,7 @@ medkit =
 	price = 800
 	sprite = medkit
 	AP_to_move = 4
-	name = Medkit
+	name = Аптечка
 	item_slots = 
 	{
 		general_small = 1
@@ -19,7 +19,7 @@ repairkit =
 {
 	weight = 3.4
 	price = 2964
-	name = Repair_kit
+	name = Ремонтный_набор
 	sprite = repairkit
 	AP_to_move = 6
 	item_slots =
@@ -30,20 +30,87 @@ repairkit =
 	maxcondition = 350
 }
 
-bandage = 
+medusa = 
 {
-	weight = 0.05
-	price = 100
+	weight = 0.7
+	name = Медуза
+	price = 17500
+	sprite = medusa
+	AP_to_move = 4
 	item_slots = 
 	{
-		AK_mag = 2
-		STANAG_mag = 1
-		general_small = 3
-		general_medium = 8
-		general_large = 20
+		general_small = 1
+		general_medium = 3
+		general_large = 5
 	}
-	usable =
+	artifact =
+	{		
+		radiation_gain = 0.1
+		damage_resistances =
+		{		
+			#fire = 15
+			#blunt = 15
+			#electricity = 15
+			#tear = 14
+			#radiation = 15
+			#chemical = 15
+			#explosion = 13
+			bullet = 1	
+		}
+	}
+}
+
+bengal_fire = 
+{
+	weight = 0.3
+	name = Бенгальский_огонь
+	price = 15250
+	sprite = bengal_fire
+	AP_to_move = 3
+	item_slots = 
 	{
-		stop_bleeding
+		general_medium = 2
+	}
+	artifact =
+	{		
+		attribute_modifiers =
+		{
+			Endurance = 1
+		}	
+	}
+}
+
+blood_stone = 
+{
+	weight = 0.6
+	name = Кровь_камня
+	price = 16451
+	sprite = stone_blood
+	AP_to_move = 3
+	item_slots = 
+	{
+		general_medium = 2
+	}
+	artifact =
+	{		
+		regeneration_modifier = 0.1
+	}
+}
+
+vyvert = 
+{
+	weight = 0.5
+	name = Выверт
+	price = 15443
+	sprite = vyvert
+	AP_to_move = 2
+	item_slots = 
+	{
+		general_medium = 2
+	}
+	artifact =
+	{		
+		radiation_gain = 0.08
+		Encumbrance = -3
 	}
 }

@@ -9,10 +9,23 @@ public class ItemPile : MonoBehaviour
         string[] itemPileNames = { "small", "medium", "big" };
         int pileSize = -1;
         int itemsCount = GetItemAmount();
+        SpriteRenderer spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         if (itemsCount == 0)
         {
-            gameObject.GetComponent<SpriteRenderer>().sprite = null; return;
+            spriteRenderer.sprite = null;
+            return;
         }
+        if (itemsCount == 1)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+                if (transform.GetChild(i).childCount > 0)
+                {
+                    spriteRenderer.sprite = transform.GetChild(i).GetChild(0).GetComponent<Item>().Sprite;
+                    transform.localScale = Vector3.one / 4;
+                    return;
+                }
+        }
+        transform.localScale = Vector3.one;
         pileSize = Mathf.Clamp(itemsCount / 4, 0, 2);
         if (pileSize >= 0)
             gameObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Graphics/item_pile_" + itemPileNames[pileSize]);

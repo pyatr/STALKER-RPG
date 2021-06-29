@@ -15,24 +15,34 @@ public class InventoryManager : MonoBehaviour
         Large
     }
 
-    public GameObject itemHeld = null;
-    public GameObject lastSlot = null;
-    public GameObject itemViewed = null;
-    public bool open = false;
-
-    public static readonly int itemPageWidth = 4;
-    public static readonly int itemPageHeight = 8;
-
     public List<GameObject> panels = new List<GameObject>();
     public Dictionary<string, Text> textPanels = new Dictionary<string, Text>();
 
-    Game game;
-    ItemPile pileUnderCharacter;
-    int currentItemPage = 1;
+    private bool open = false;
+    public bool Open { get { return open; } }
 
-    GameObject character { get { return game.characterController.ControlledCharacter; } }
+    private World world;
+    private ItemPile pileUnderCharacter;
+    public MerchantStock merchantStock;
+    private int currentItemPage = 1;
 
+    public GameObject itemHeld = null;
+    public GameObject lastSlot = null;
+    public GameObject itemViewed = null;
+    public Character controlledCharacter;
+
+    public static readonly int itemPageWidth = 4;
+    public static readonly int itemPageHeight = 8;
     public static int ItemPageSlotCount { get { return itemPageWidth * itemPageHeight; } }
+
+    public bool tradeMode = false;
+    public float sellPriceModifier = 0f;
+    public float buyPriceModifier = 0f;
+
+    private void Start()
+    {
+        world = World.GetInstance();
+    }
 
     GameObject CreateItemSlot(Transform parent, Vector2 position, string slotName, string slotType, GameObject pocket, InventoryCellSize size = InventoryCellSize.Small)
     {
@@ -57,7 +67,7 @@ public class InventoryManager : MonoBehaviour
         slotItemImageTransform.localScale = Vector3.one;
         slotItemImage.AddComponent<Image>();
         slotItemImage.SetActive(false);
-        slotComponent.Create(this, game);
+        slotComponent.Create(this);
         slotComponent.UpdateSlot();
         return slot;
     }
@@ -65,8 +75,8 @@ public class InventoryManager : MonoBehaviour
     GameObject CreateBuiltinSlot(Transform parent, Vector2 position, string slotName, BuiltinCharacterSlots slotType)
     {
         string slotTypeName = Enum.GetName(typeof(BuiltinCharacterSlots), slotType);
-        GameObject slot = CreateItemSlot(parent, position, slotName, slotTypeName, character.GetComponent<Character>().GetSlot(slotType), InventoryCellSize.Large);
-        GameObject itemInSlot = character.GetComponent<Character>().GetItemFromBuiltinSlot(slotType);
+        GameObject slot = CreateItemSlot(parent, position, slotName, slotTypeName, controlledCharacter.GetSlot(slotType), InventoryCellSize.Large);
+        GameObject itemInSlot = controlledCharacter.GetItemFromBuiltinSlot(slotType);
         if (itemInSlot != null)
             LoadSlotsFromLBE(slot);
         return slot;
@@ -94,15 +104,17 @@ public class InventoryManager : MonoBehaviour
         nameTransform.localScale = Vector3.one;
     }
 
-    void AddTextPanelToCategory(GameObject category, string text)
+    void AddTextPanelToCategory(GameObject category, string text, float xOffset = 0, float yOffset = 0)
     {
         GameObject namePanel = new GameObject("Text") { layer = 5 };
-        AddTextToObject(namePanel).text = text;
+        Text categoryText = AddTextToObject(namePanel);
+        categoryText.text = text;
+        categoryText.fontSize = 14;
         namePanel.transform.SetParent(category.transform);
         RectTransform nameTransform = namePanel.GetComponent<RectTransform>();
-        nameTransform.sizeDelta = new Vector2(128, 16);
+        nameTransform.sizeDelta = new Vector2(128, 24);
         nameTransform.pivot = new Vector2(0f, 0.5f);
-        nameTransform.anchoredPosition = new Vector2(8, 8);
+        nameTransform.anchoredPosition = new Vector2(8 + xOffset, 8 + yOffset);
         nameTransform.localScale = Vector3.one;
     }
 
@@ -110,7 +122,7 @@ public class InventoryManager : MonoBehaviour
     {
         Text text = UIobject.AddComponent<Text>();
         text.text = "";
-        text.font = game.defaultFont;//(Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
+        text.font = Game.Instance.DefaultFont;//(Font)Resources.GetBuiltinResource(typeof(Font), "Arial.ttf");
         text.color = new Color32(222, 222, 222, 255);
         text.fontSize = 10;
         //text.resizeTextForBestFit = true;
@@ -132,7 +144,7 @@ public class InventoryManager : MonoBehaviour
         slotCategoryTransform.anchorMax = new Vector2(0, 1);
         slotCategoryTransform.offsetMin = new Vector2(8 + position.x * 64, -1 * (8 + position.y * 64));
         slotCategoryTransform.offsetMax = slotCategoryTransform.offsetMin;
-        slotCategoryTransform.localScale = new Vector3(game.UIscale, game.UIscale, game.UIscale);
+        slotCategoryTransform.localScale = new Vector3(Game.Instance.UIscale, Game.Instance.UIscale, Game.Instance.UIscale);
         return slotCategory;
     }
 
@@ -147,12 +159,13 @@ public class InventoryManager : MonoBehaviour
         {
             if (itemComponent.extensions[i] != null)
             {
-                GameObject extension = itemComponent.extensions[i].GetComponent<Item>().GetSlot().slotInInventory.gameObject;
-                LBEgear extensionLBEcomponent = itemComponent.extensions[i].GetComponent<Item>().GetComponent<LBEgear>();
+                GameObject extension = itemComponent.extensions[i].itemComponent.GetSlot().slotInInventory.gameObject;
+                LBEgear extensionLBEcomponent = itemComponent.extensions[i].itemComponent.GetComponent<LBEgear>();
                 if (extensionLBEcomponent)
                 {
                     List<GameObject> itemsToTransfer = extensionLBEcomponent.GetAllItems();
-                    List<GameObject> primarySlots = itemComponent.extensions[i].GetComponent<ItemExtension>().extensionOf.GetComponent<LBEgear>().GetAllSlots();
+                    BuiltinCharacterSlots parentItemSlot = (BuiltinCharacterSlots)Enum.Parse(typeof(BuiltinCharacterSlots), itemComponent.extensions[i].extensionOf);
+                    List<GameObject> primarySlots = controlledCharacter.GetItemFromBuiltinSlot(parentItemSlot).GetComponent<LBEgear>().GetAllSlots();
                     foreach (GameObject slotInLBE in primarySlots)
                         foreach (GameObject itemToTransfer in itemsToTransfer)
                             if (slotInLBE.name == itemToTransfer.GetComponent<Item>().GetSlot().gameObject.name)
@@ -162,10 +175,8 @@ public class InventoryManager : MonoBehaviour
             }
         }
         for (int i = 0; i < extensionsCount; i++)
-            Destroy(itemComponent.extensions[i]);
-
+            Destroy(itemComponent.extensions[i].gameObject);
         itemComponent.extensions.Clear();
-        //itemComponent.extensions.RemoveAll(itemObject => itemObject == null);
         item.transform.SetParent(gameObject.transform);
         switch (slot.name)
         {
@@ -185,24 +196,73 @@ public class InventoryManager : MonoBehaviour
         return true;
     }
 
+    void DetermineTradeModifiers(Character itemOwner)
+    {
+        float ownerTradingPower = itemOwner.GetAttribute("Social").Value + itemOwner.Level - 14;
+        float playerTradingPower = Mathf.Min(controlledCharacter.GetAttribute("Social").Value + controlledCharacter.Level, ownerTradingPower) - 14;
+        buyPriceModifier = Mathf.Max(ownerTradingPower - playerTradingPower, 0.1f) / 10;
+        sellPriceModifier = Mathf.Max(playerTradingPower - ownerTradingPower, 0.1f) / 10;
+        //Debug.Log(buyPriceModifier + "/" + sellPriceModifier);
+    }
+
     bool PlaceItemInSlot(GameObject slot, GameObject item)
     {
         bool placedSuccessfully = false;
         if (item != null)
         {
+            Item itemComponent = item.GetComponent<Item>();
+            if (tradeMode && slot.GetComponent<UIslot>().pocket.ItemFits(item))
+            {
+                Character itemOwner = itemComponent.lastOwner;
+                Character slotOwner = slot.GetComponent<UIslot>().pocket.GetOwner();
+                if (itemOwner == null)
+                    itemOwner = slotOwner;
+                if (slotOwner != null && itemOwner != slotOwner)
+                {
+                    if (slotOwner == controlledCharacter)
+                    {
+                        float finalPrice = (itemComponent.Price * (1.0f + buyPriceModifier));
+                        if (finalPrice <= controlledCharacter.money)
+                        {
+                            controlledCharacter.money -= (int)finalPrice;
+                            itemOwner.money += (int)finalPrice;
+                            Debug.Log(controlledCharacter.displayName + " bought " + itemComponent.displayName + " from " + itemOwner.displayName);
+                        }
+                        else
+                        {
+                            Debug.Log("not enough player money: " + controlledCharacter.money.ToString() + " < " + finalPrice.ToString());
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        float finalPrice = (itemComponent.Price * (1.0f - sellPriceModifier));
+                        if (finalPrice <= slotOwner.money)
+                        {
+                            slotOwner.money -= (int)finalPrice;
+                            controlledCharacter.money += (int)finalPrice;
+                            Debug.Log(controlledCharacter.displayName + " sold " + itemComponent.displayName + " to " + slotOwner.displayName);
+                        }
+                        else
+                        {
+                            Debug.Log("not enough merchant money: " + slotOwner.money.ToString() + " < " + finalPrice.ToString());
+                            return false;
+                        }
+                    }
+                }
+            }
             placedSuccessfully = slot.GetComponent<UIslot>().pocket.PlaceItem(item);
             if (placedSuccessfully)
             {
                 if (item.GetComponent<LBEgear>())
                     LoadSlotsFromLBE(slot);
-                for (int i = 0; i < item.GetComponent<Item>().extensions.Count; i++)
+                foreach (ItemExtension extension in itemComponent.extensions)
                 {
-                    GameObject itemExtension = item.GetComponent<Item>().extensions[i];
-                    string extensionSlotName = itemExtension.GetComponent<Item>().GetSlot().slotInInventory.name;
-                    if (itemExtension.GetComponent<LBEgear>())
+                    string extensionSlotName = extension.itemComponent.GetSlot().slotInInventory.name;
+                    if (extension.GetComponent<LBEgear>())
                         if (extensionSlotName == "Vest" || extensionSlotName == "Backpack" || extensionSlotName == "Belt" || extensionSlotName.Contains("ThighRig"))
-                            if (itemExtension.GetComponent<Item>().GetSlot().slotInInventory.transform.parent.childCount == 2)
-                                LoadSlotsFromLBE(itemExtension.GetComponent<Item>().GetSlot().slotInInventory.gameObject);
+                            if (extension.itemComponent.GetSlot().slotInInventory.transform.parent.childCount == 2)
+                                LoadSlotsFromLBE(extension.itemComponent.GetSlot().slotInInventory.gameObject);
                 }
             }
         }
@@ -271,7 +331,7 @@ public class InventoryManager : MonoBehaviour
     GameObject CreateSlotPanel(string name, Vector2 pivot, Vector2 anchorMin, Vector2 anchorMax)
     {
         GameObject panel = new GameObject(name) { tag = "UI_noscaling", layer = 5 };
-        panel.transform.SetParent(game.UI.transform);
+        panel.transform.SetParent(world.UI.transform);
         RectTransform panelTransform = panel.AddComponent<RectTransform>();
         panelTransform.localScale = Vector3.one;
         panelTransform.pivot = pivot;
@@ -293,14 +353,16 @@ public class InventoryManager : MonoBehaviour
         if (!open)
             return;
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-        character.GetComponent<Character>().CalculateEncumbrance();
+        controlledCharacter.CalculateEncumbrance();
         open = false;
+        tradeMode = false;
+        merchantStock = null;
         if (itemHeld != null)
         {
             if (lastSlot != null)
                 PlaceItemInSlot(lastSlot, itemHeld);
             else
-                character.GetComponent<Character>().TryPlaceItemInInventory(itemHeld);
+                controlledCharacter.TryPlaceItemInInventory(itemHeld);
             itemHeld = null;
         }
         for (int i = 0; i < panels.Count; i++)
@@ -319,10 +381,10 @@ public class InventoryManager : MonoBehaviour
     {
         GameObject characterPanel = CreateSlotPanel("CharacterPanel", new Vector2(0, 1), Vector2.zero, new Vector2(0.5f, 1));
         panels.Add(characterPanel);
-        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(0, 0.25f / 2), "Weapon on back", BuiltinCharacterSlots.Backweapon);
-        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.25f / 2, 3f), "Vest", BuiltinCharacterSlots.Vest);
-        GameObject pwCategory = CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.25f, 0.25f / 2), "Primary weapon", BuiltinCharacterSlots.Weapon);
-        AddTextBox("ActionPoints", new Vector2(192, 24), new Vector2(60, -80), pwCategory.transform);
+        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(0, 0.25f), "Weapon on back", BuiltinCharacterSlots.Backweapon);
+        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.5f / 2, 3.25f), "Vest", BuiltinCharacterSlots.Vest);
+        GameObject pwCategory = CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.25f, 0.25f), "Primary weapon", BuiltinCharacterSlots.Weapon);
+        AddTextBox("ActionPoints", new Vector2(168, 28), new Vector2(-50, -86), pwCategory.transform);
         textPanels["ActionPoints"].fontSize = 14;
         AddTextBox("ItemStatNames", new Vector2(192, 384), new Vector2(208, -112), pwCategory.transform);
         textPanels["ItemStatNames"].alignment = TextAnchor.UpperLeft;
@@ -331,8 +393,8 @@ public class InventoryManager : MonoBehaviour
         AddTextBox("ItemStats", new Vector2(128, 384), new Vector2(334 - 32, -112), pwCategory.transform);
         textPanels["ItemStats"].alignment = TextAnchor.UpperRight;
         textPanels["ItemStats"].fontSize = 16;
-        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(0, 1.75f), "Armor", BuiltinCharacterSlots.Armor);
-        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.25f, 1.75f), "Helmet", BuiltinCharacterSlots.Helmet);
+        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(0, 2.0f), "Armor", BuiltinCharacterSlots.Armor);
+        CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(2.25f, 2.0f), "Helmet", BuiltinCharacterSlots.Helmet);
         //CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(4.5f, 0.25f / 2 + 1.50f), "Eyes", BuiltinCharacterSlots.Eyes);
         //CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(4.5f, 0.25f / 2 + 2.75f), "Face", BuiltinCharacterSlots.Mask);
         //CreateBuiltinSlotCategory(characterPanel.transform, new Vector2(3.5f, 0.25f / 2 + 6f), "Belt", BuiltinCharacterSlots.Belt);
@@ -354,11 +416,11 @@ public class InventoryManager : MonoBehaviour
         GameObject outsideContentsPanel = CreateSlotPanel("ItemsOutside", Vector2.one, new Vector2(0.5f, 0), Vector2.one);
         panels.Add(outsideContentsPanel);
         GameObject scaler = AddSlotCategoryToPanel(outsideContentsPanel.transform, new Vector2(0, 0.25f / 2), "Items");
-        AddTextPanelToCategory(scaler, "Items on ground");
-        Vector2 playerPosition = character.transform.localPosition;
-        GameObject pileUnderCharacter = game.GetItemPile(playerPosition);
+        AddTextPanelToCategory(scaler, "Items on ground", 0, -12);
+        Vector2 playerPosition = controlledCharacter.transform.localPosition;
+        GameObject pileUnderCharacter = world.GetItemPile(playerPosition);
         if (pileUnderCharacter == null)
-            pileUnderCharacter = game.CreateItemPile(playerPosition);
+            pileUnderCharacter = world.CreateItemPile(playerPosition);
         this.pileUnderCharacter = pileUnderCharacter.GetComponent<ItemPile>();
         GameObject buttonNext = new GameObject("button_next");
         buttonNext.transform.SetParent(scaler.transform);
@@ -371,8 +433,8 @@ public class InventoryManager : MonoBehaviour
         buttonPrevious.AddComponent<Image>().sprite = Resources.Load<Sprite>("Graphics/button_next");
         buttonPrevious.transform.localPosition = new Vector2(128, 4);
         buttonPrevious.GetComponent<RectTransform>().sizeDelta = new Vector2(24, 24);
-        AddTextBox("PageDisplay", new Vector2(96, 24), new Vector2(192, 4), scaler.transform);
-        textPanels["PageDisplay"].fontSize = 12;
+        AddTextBox("PageDisplay", new Vector2(96, 32), new Vector2(192, 4), scaler.transform);
+        textPanels["PageDisplay"].fontSize = 16;
         SwitchOutsideItemsToPage(1);
     }
 
@@ -385,6 +447,8 @@ public class InventoryManager : MonoBehaviour
         RectTransform pageDisplayTransform = pageDisplay.AddComponent<RectTransform>();
         //pageDisplayTransform.localScale = Vector3.one;
         pageDisplayTransform.sizeDelta = sizeDelta;// new Vector2(96, 24);
+        //pageDisplayTransform.anchorMin = Vector2.zero;
+        //pageDisplayTransform.anchorMax = Vector2.one;        
         pageDisplayTransform.transform.localPosition = localPosition;//new Vector2(192, 8);
         Color32 pageDisplayColor = new Color32(14, 16, 33, 255);
         Image pageDisplayImage = pageDisplay.AddComponent<Image>();
@@ -394,7 +458,7 @@ public class InventoryManager : MonoBehaviour
         pageDisplayImage.color = pageDisplayColor;
         GameObject pageDisplayText = new GameObject(boxName + "text");
         pageDisplayText.transform.SetParent(pageDisplay.transform, false);
-        pageDisplayText.AddComponent<RectTransform>().sizeDelta = sizeDelta;
+        pageDisplayText.AddComponent<RectTransform>().sizeDelta = sizeDelta - new Vector2(8, 8);
         textPanels.Add(boxName, AddTextToObject(pageDisplayText));
         return pageDisplay;
     }
@@ -402,20 +466,37 @@ public class InventoryManager : MonoBehaviour
     void NextItemPage()
     {
         currentItemPage++;
-        currentItemPage = Mathf.Clamp(currentItemPage, 1, pileUnderCharacter.GetPageCount());
-        pileUnderCharacter.MakeSlotsIfNecessary();
-        SwitchOutsideItemsToPage(currentItemPage);
+        if (!tradeMode)
+        {
+            currentItemPage = Mathf.Clamp(currentItemPage, 1, pileUnderCharacter.GetPageCount());
+            pileUnderCharacter.MakeSlotsIfNecessary();
+            SwitchOutsideItemsToPage(currentItemPage);
+        }
+        else
+        {
+            currentItemPage = Mathf.Clamp(currentItemPage, 1, merchantStock.GetPageCount());
+            merchantStock.MakeSlotsIfNecessary();
+            SwitchMerchantStockToPage(currentItemPage);
+        }
     }
 
     void PreviousItemPage()
     {
         currentItemPage--;
         //pileUnderCharacter.DeleteEmptyPages();
-        currentItemPage = Mathf.Clamp(currentItemPage, 1, pileUnderCharacter.GetPageCount());
-        SwitchOutsideItemsToPage(currentItemPage);
+        if (!tradeMode)
+        {
+            currentItemPage = Mathf.Clamp(currentItemPage, 1, pileUnderCharacter.GetPageCount());
+            SwitchOutsideItemsToPage(currentItemPage);
+        }
+        else
+        {
+            currentItemPage = Mathf.Clamp(currentItemPage, 1, merchantStock.GetPageCount());
+            SwitchMerchantStockToPage(currentItemPage);
+        }
     }
 
-    void SwitchOutsideItemsToPage(int n)
+    private void SwitchOutsideItemsToPage(int n)
     {
         for (int i = 0; i < panels.Count; i++)
         {
@@ -438,17 +519,83 @@ public class InventoryManager : MonoBehaviour
                         GameObject slot = CreateSlotWithNamePanel(itemsOutside, new Vector2(j, k + 0.25f / 2), "OutsideSlot" + j.ToString() + "_" + k.ToString(), "ground", pileUnderCharacter.transform.GetChild(itemNumber + n * ItemPageSlotCount).gameObject, InventoryCellSize.Large);
                     }
                 }
+                return;
             }
         }
     }
 
-    public void OpenInventory()
+    private void AddMerchantStockPanel()
     {
+        GameObject outsideContentsPanel = CreateSlotPanel("MerchantStock", Vector2.one, new Vector2(0.5f, 0), Vector2.one);
+        panels.Add(outsideContentsPanel);
+        GameObject scaler = AddSlotCategoryToPanel(outsideContentsPanel.transform, new Vector2(0, 0.25f / 2), "Items");
+        AddTextPanelToCategory(scaler, merchantStock.transform.parent.GetComponent<Character>().displayName, 0, -12);
+        Vector2 playerPosition = controlledCharacter.transform.localPosition;
+        GameObject buttonNext = new GameObject("button_next");
+        buttonNext.transform.SetParent(scaler.transform);
+        buttonNext.AddComponent<Image>().sprite = Resources.Load<Sprite>("Graphics/button_next");
+        buttonNext.GetComponent<RectTransform>().Rotate(new Vector3(0, 0, -180));
+        buttonNext.transform.localPosition = new Vector2(256, 4);
+        buttonNext.GetComponent<RectTransform>().sizeDelta = new Vector2(24, 24);
+        GameObject buttonPrevious = new GameObject("button_previous");
+        buttonPrevious.transform.SetParent(scaler.transform);
+        buttonPrevious.AddComponent<Image>().sprite = Resources.Load<Sprite>("Graphics/button_next");
+        buttonPrevious.transform.localPosition = new Vector2(128, 4);
+        buttonPrevious.GetComponent<RectTransform>().sizeDelta = new Vector2(24, 24);
+        AddTextBox("PageDisplay", new Vector2(96, 24), new Vector2(192, 4), scaler.transform);
+        textPanels["PageDisplay"].fontSize = 12;
+        //AddTextBox("MerchantMoney", new Vector2(96, 24), new Vector2(316, 4), scaler.transform);
+        //textPanels["MerchantMoney"].fontSize = 12;
+        SwitchMerchantStockToPage(1);
+    }
+
+    private void SwitchMerchantStockToPage(int n)
+    {
+        for (int i = 0; i < panels.Count; i++)
+        {
+            if (panels[i].name == "MerchantStock")
+            {
+                Transform itemsInStock = panels[i].transform.GetChild(0);
+                for (int j = 0; j < itemsInStock.childCount; j++)
+                    if (itemsInStock.GetChild(j).GetComponent<UIslot>())
+                        Destroy(itemsInStock.GetChild(j).gameObject);
+                Text pageDisplayText = textPanels["PageDisplay"]; //itemsOutside.Find("page_display").GetComponentInChildren<Text>();
+                pageDisplayText.text = "Page " + n.ToString() + "/" + merchantStock.GetPageCount();
+                pageDisplayText.resizeTextMaxSize = 14;
+                pageDisplayText.alignment = TextAnchor.MiddleCenter;
+                n--;
+                for (int k = 0; k < itemPageHeight; k++)
+                {
+                    for (int j = 0; j < itemPageWidth; j++)
+                    {
+                        int itemNumber = k * itemPageWidth + j;
+                        GameObject slot = CreateSlotWithNamePanel(itemsInStock, new Vector2(j, k + 0.25f / 2), "StockSlot" + j.ToString() + "_" + k.ToString(), "ground", merchantStock.transform.GetChild(itemNumber + n * ItemPageSlotCount).gameObject, InventoryCellSize.Large);
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    public void OpenInventory(bool trading = false)
+    {
+        world = GetComponent<World>();
+        controlledCharacter = world.characterController.ControlledCharacter.GetComponent<Character>();
+        if (controlledCharacter == null)
+            return;
         open = true;
-        game = GetComponent<Game>();
+        tradeMode = trading;
         Cursor.visible = true;
         AddCharacterPanel();
-        AddOutsideItemsPanel();
+        if (!tradeMode)
+        {
+            AddOutsideItemsPanel();
+        }
+        else
+        {
+            AddMerchantStockPanel();
+            DetermineTradeModifiers(merchantStock.transform.parent.GetComponent<Character>());
+        }
     }
 
     List<RaycastResult> RaycastMouse()
@@ -463,12 +610,21 @@ public class InventoryManager : MonoBehaviour
     void PickItem(GameObject item)
     {
         itemHeld = item;
-        character.GetComponent<Character>().PlaySound(Resources.Load<AudioClip>("Sounds/pick_item"));
-        if (itemHeld.GetComponent<Item>().sprite != null)
+        controlledCharacter.PlaySound(Resources.Load<AudioClip>("Sounds/pick_item"));
+        if (itemHeld.GetComponent<Item>().Sprite != null)
         {
-            Texture2D cursor = new Texture2D(itemHeld.GetComponent<Item>().sprite.texture.width, itemHeld.GetComponent<Item>().sprite.texture.height);
-            cursor.SetPixels32(itemHeld.GetComponent<Item>().sprite.texture.GetPixels32());
-            TextureScaler.scale(cursor, (int)(cursor.width * 1.7f * game.UIscale), (int)(cursor.height * 1.7f * game.UIscale), FilterMode.Point);
+            Texture2D cursor = new Texture2D(itemHeld.GetComponent<Item>().Sprite.texture.width, itemHeld.GetComponent<Item>().Sprite.texture.height);
+            cursor.SetPixels32(itemHeld.GetComponent<Item>().Sprite.texture.GetPixels32());
+            float maxWidth = 192;
+            float targetWidth = cursor.width * 1.7f * Game.Instance.UIscale;
+            float targetHeight = cursor.height * 1.7f * Game.Instance.UIscale;
+            if (cursor.width > maxWidth)
+            {
+                float newSizeMod = maxWidth / targetWidth;
+                targetWidth *= newSizeMod;
+                targetHeight *= newSizeMod;
+            }
+            TextureScaler.scale(cursor, (int)targetWidth, (int)targetHeight, FilterMode.Point);
             Cursor.SetCursor(cursor, new Vector2(cursor.width, cursor.height) / 2, CursorMode.ForceSoftware);
         }
     }
@@ -478,7 +634,7 @@ public class InventoryManager : MonoBehaviour
         itemHeld = slot.GetComponent<UIslot>().pocket.GetItem();
         if (itemHeld != null)
         {
-            if (character.GetComponent<Character>().UseActionPoints(itemHeld.GetComponent<Item>().actionPointsToMove))
+            if (controlledCharacter.UseActionPoints(itemHeld.GetComponent<Item>().actionPointsToMove))
             {
                 if (RemoveItemFromSlot(slot))
                 {
@@ -495,7 +651,7 @@ public class InventoryManager : MonoBehaviour
 
     void RemoveHeldItem()
     {
-        character.GetComponent<Character>().PlaySound(Resources.Load<AudioClip>("Sounds/place_item"));
+        controlledCharacter.PlaySound(Resources.Load<AudioClip>("Sounds/place_item"));
         itemHeld = null;
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
         lastSlot = null;
@@ -510,7 +666,7 @@ public class InventoryManager : MonoBehaviour
                 if (lastSlot != null)
                     PlaceItemInSlot(lastSlot, itemHeld);
                 else
-                    character.GetComponent<Character>().TryPlaceItemInInventory(itemHeld);
+                    controlledCharacter.TryPlaceItemInInventory(itemHeld);
             }
             RemoveHeldItem();
         }
@@ -530,15 +686,37 @@ public class InventoryManager : MonoBehaviour
     {
         if (!open)
             return;
-        Character characterComponent = character.GetComponent<Character>();
-        if (characterComponent.IsInCombat())
+        bool isInCombat = controlledCharacter.IsInCombat();
+        if (isInCombat)
         {
             textPanels["ActionPoints"].transform.parent.gameObject.SetActive(true);
-            textPanels["ActionPoints"].text = "\tAction points: " + ((int)characterComponent.actionPoints).ToString() + "/" + ((int)characterComponent.GetMaxActionPoints()).ToString();
+            textPanels["ActionPoints"].text = "\tAction points: " + ((int)controlledCharacter.actionPoints).ToString() + "/" + ((int)controlledCharacter.GetMaxActionPoints()).ToString();
         }
-        else
+        else// if (merchantStock == null)
         {
             textPanels["ActionPoints"].transform.parent.gameObject.SetActive(false);
+        }
+        if (merchantStock != null && itemViewed == null)
+        {
+            Character merchant = merchantStock.transform.parent.GetComponent<Character>();
+            int playerTradingPower = (int)(controlledCharacter.GetAttribute("Social").Value + controlledCharacter.Level);
+            int merchantTradingPower = (int)(merchant.GetAttribute("Social").Value + merchant.Level);
+            string propertyNames = "";
+            string propertyValues = "";
+            propertyNames += controlledCharacter.displayName + " trading power\n";
+            propertyNames += controlledCharacter.displayName + " money\n";
+            propertyNames += merchant.displayName + " trading power\n";
+            propertyNames += merchant.displayName + " money\n";
+            propertyValues += playerTradingPower.ToString() + '\n';
+            propertyValues += controlledCharacter.money.ToString() + '\n';
+            propertyValues += merchantTradingPower.ToString() + '\n';
+            propertyValues += merchant.money.ToString() + '\n';
+            textPanels["ItemStatNames"].text = propertyNames;
+            textPanels["ItemStats"].text = propertyValues;
+            //textPanels["ItemStatNames"].text += controlledCharacter.money.ToString() + '\n';
+            //textPanels["ItemStatNames"].text += merchant.money.ToString() + '\n';
+            //textPanels["ActionPoints"].text = controlledCharacter.money.ToString() + " P.";
+            //textPanels["MerchantMoney"].text = merchantStock.transform.parent.GetComponent<Character>().money.ToString() + " P.";
         }
         if (Input.GetMouseButtonUp(0))
         {
@@ -559,7 +737,7 @@ public class InventoryManager : MonoBehaviour
                 GameObject currentSlot = rr.gameObject;
                 if (currentSlot.GetComponent<UIslot>() == null)
                     continue;
-                if (currentSlot.GetComponent<UIslot>().pocket.transform.parent.parent.name == "Backpack" && character.GetComponent<Character>().IsInCombat())
+                if (currentSlot.GetComponent<UIslot>().pocket.transform.parent.parent.name == "Backpack" && isInCombat)
                 {
                     OverrideItemViewText("Not in combat!");
                     continue;
@@ -570,7 +748,7 @@ public class InventoryManager : MonoBehaviour
                         return;
                 if (itemHeld == null && itemInSlot != null)
                 {
-                    if (Input.GetKey(KeyCode.LeftControl))
+                    if (Input.GetKey(KeyCode.LeftControl) && !tradeMode)
                     {
                         if (pileUnderCharacter != null)
                         {
@@ -583,55 +761,66 @@ public class InventoryManager : MonoBehaviour
                                 pileUnderCharacter.MakeSlotsIfNecessary();
                                 for (int i = 0; i < pileUnderCharacter.GetSlotCount(); i++)
                                     if (pileUnderCharacter.GetSlot(i).ItemFits(itemInSlot))
-                                        if (characterComponent.UseActionPoints(itemInSlot.GetComponent<Item>().actionPointsToMove))
+                                        if (controlledCharacter.UseActionPoints(itemInSlot.GetComponent<Item>().actionPointsToMove))
                                         {
                                             if (RemoveItemFromSlot(currentSlot))
                                                 pileUnderCharacter.GetSlot(i).PlaceItem(itemInSlot);
                                             break;
                                         }
                             }
-                            else if (characterComponent.UseActionPoints(itemInSlot.GetComponent<Item>().actionPointsToMove))
+                            else if (controlledCharacter.UseActionPoints(itemInSlot.GetComponent<Item>().actionPointsToMove))
                                 if (RemoveItemFromSlot(currentSlot))
-                                    characterComponent.TryPlaceItemInInventory(itemInSlot);
+                                    controlledCharacter.TryPlaceItemInInventory(itemInSlot);
                         }
                         return;
                     }
-                    if (Input.GetKey(KeyCode.LeftShift))
+                    if (Input.GetKey(KeyCode.LeftShift) && !tradeMode)
                     {
-                        if (!characterComponent.IsInCombat())
+                        if (!isInCombat)
                         {
-                            Firearm firearmComponent = itemInSlot.GetComponent<Firearm>();
                             Magazine magazineComponent = itemInSlot.GetComponent<Magazine>();
                             if (magazineComponent)
                             {
                                 GameObject ammoBox = magazineComponent.UnloadAmmo();
                                 if (ammoBox != null)
-                                    if (characterComponent.UseActionPoints(ammoBox.GetComponent<Item>().actionPointsToMove))
-                                        PickItem(ammoBox);
-                                return;
-                            }
-                            if (firearmComponent)
-                            {
-                                GameObject magazine = firearmComponent.UnloadMagazine();
-                                if (magazine != null)
-                                    if (!magazine.GetComponent<Magazine>().builtin)
-                                        if (characterComponent.UseActionPoints(magazine.GetComponent<Item>().actionPointsToMove))
-                                            PickItem(magazine);
+                                    PickItem(ammoBox);
                                 return;
                             }
                         }
-                        else
+                        Firearm firearmComponent = itemInSlot.GetComponent<Firearm>();
+                        if (firearmComponent)
                         {
-                            OverrideItemViewText("Not in combat!");
-                            return;
+                            GameObject magazine = firearmComponent.magazine;
+                            if (magazine != null)
+                            {
+                                if (!magazine.GetComponent<Magazine>().builtin)
+                                {
+                                    if (controlledCharacter.UseActionPoints(magazine.GetComponent<Item>().actionPointsToMove))
+                                    {
+                                        firearmComponent.UnloadMagazine();
+                                        PickItem(magazine);
+                                    }
+                                }
+                                else
+                                {
+                                    if (controlledCharacter.UseActionPoints(3))
+                                    {
+                                        GameObject ammoBox = magazine.GetComponent<Magazine>().UnloadAmmo();
+                                        if (ammoBox != null)
+                                            PickItem(ammoBox);
+                                    }
+                                }
+                            }
                         }
+                        //OverrideItemViewText("Not in combat!");
+                        return;
                     }
                     PickItemFromSlot(currentSlot);
                     return;
                 }
                 else //Item held
                 {
-                    if (itemInSlot != null) //Another item is in slot
+                    if (itemInSlot != null && !tradeMode) //Another item is in slot
                     {
                         AmmoBox ammoBoxComponentHeld = itemHeld.GetComponent<AmmoBox>();
                         AmmoBox ammoBoxComponentInSlot = itemInSlot.GetComponent<AmmoBox>();
@@ -645,12 +834,12 @@ public class InventoryManager : MonoBehaviour
                                 if (magazineComponentInSlot.builtin)
                                     if (firearmComponentInSlot)
                                         if (firearmComponentInSlot.magazine != null)
-                                            if (characterComponent.UseActionPoints(ammoBoxComponentHeld.GetComponent<Item>().actionPointsToMove))
+                                            if (controlledCharacter.UseActionPoints(ammoBoxComponentHeld.GetComponent<Item>().actionPointsToMove))
                                             {
                                                 firearmComponentInSlot.magazine.GetComponent<Magazine>().LoadFromAmmoBox(itemHeld);
                                                 return;
                                             }
-                            if (!characterComponent.IsInCombat())
+                            if (!isInCombat)
                             {
                                 if (magazineComponentInSlot)
                                     magazineComponentInSlot.LoadFromAmmoBox(itemHeld);
@@ -670,6 +859,18 @@ public class InventoryManager : MonoBehaviour
                             }
                             else
                             {
+                                if (firearmComponentInSlot && ammoBoxComponentHeld)
+                                    if (firearmComponentInSlot.magazine != null)
+                                        if (firearmComponentInSlot.magazine.GetComponent<Magazine>().builtin)
+                                        {
+                                            firearmComponentInSlot.magazine.GetComponent<Magazine>().LoadFromAmmoBox(itemHeld);
+                                            if (ammoBoxComponentHeld.amount <= 0)
+                                            {
+                                                Destroy(itemHeld);
+                                                RemoveHeldItem();
+                                            }
+                                            return;
+                                        }
                                 OverrideItemViewText("Not in combat!");
                             }
                             return;
@@ -700,6 +901,7 @@ public class InventoryManager : MonoBehaviour
         if (Input.GetMouseButtonUp(1))
         {
             List<RaycastResult> results = RaycastMouse();
+            itemViewed = null;
             foreach (RaycastResult rr in results)
             {
                 GameObject currentSlot = rr.gameObject;
@@ -708,7 +910,7 @@ public class InventoryManager : MonoBehaviour
                 itemViewed = currentSlot.GetComponent<UIslot>().pocket.GetItem();
                 if (itemViewed != null)
                     if (itemViewed.GetComponent<ItemExtension>())
-                        itemViewed = itemViewed.GetComponent<ItemExtension>().extensionOf;
+                        itemViewed = controlledCharacter.GetItemFromBuiltinSlot(itemViewed.GetComponent<ItemExtension>().GetParentSlotType());
             }
         }
         if (itemViewed == null)
@@ -729,7 +931,7 @@ public class InventoryManager : MonoBehaviour
             statNames += "Total weight\n";
             statValues += itemComponentViewed.GetWeight().ToString() + "\n";
             statNames += "Price\n";
-            statValues += itemComponentViewed.price.ToString() + "\n";
+            statValues += itemComponentViewed.Price.ToString() + "\n";
             statNames += "Action points to move\n";
             statValues += itemComponentViewed.actionPointsToMove.ToString() + "\n";
             if (itemComponentViewed.canBeRepaired)
@@ -835,6 +1037,8 @@ public class InventoryManager : MonoBehaviour
                 statValues += magazineComponentViewed.currentCaliber.penetration.ToString() + "\n";
                 statNames += "Tumble\n";
                 statValues += magazineComponentViewed.currentCaliber.tumble.ToString() + "\n";
+                statNames += "Base type\n";
+                statValues += magazineComponentViewed.category + "\n";
                 if (magazineComponentViewed.currentCaliber.tracer)
                 {
                     statNames += "Tracer ammo\n";
